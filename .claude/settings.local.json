@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:owasp.org)",
+      "WebFetch(domain:genai.owasp.org)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:owaspai.org)",
+      "WebFetch(domain:cheatsheetseries.owasp.org)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:bibek-poudel.medium.com)",
+      "WebFetch(domain:docs.openclaw.ai)",
+      "WebFetch(domain:safeclaw.io)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:www.lakera.ai)",
+      "WebFetch(domain:adversa.ai)",
+      "WebFetch(domain:arxiv.org)"
+    ]
+  }
+}
