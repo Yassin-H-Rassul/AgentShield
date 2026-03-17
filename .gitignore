@@ -1,6 +1,12 @@
 # Secrets
 .env
 
+# Reference thesis (not ours)
+Voices_of_the_Mountains_Deep_Learning_Based_Vocal_Error_Detection/
+
+# Generated HTML traces
+runs/**/*.html
+
 # Virtual environment
 .venv/
 
