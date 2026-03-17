@@ -5,7 +5,10 @@
 Voices_of_the_Mountains_Deep_Learning_Based_Vocal_Error_Detection/
 
 # Generated HTML traces
-runs/**/*.html
+agentshield/runs/**/*.html
+
+# Leftover files (permission issues)
+Thesis Dissertations template style sheets_V5.2.dot
 
 # Virtual environment
 .venv/
