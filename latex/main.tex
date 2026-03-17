@@ -1,0 +1,211 @@
+% AgentShield MSc Thesis — University of Kurdistan Hewler
+% Compile with: xelatex main.tex  (required for Arial font)
+% Then: biber main
+% Then: xelatex main.tex (twice for references)
+
+\documentclass[12pt,a4paper,oneside]{report}
+
+% === Font: Arial via fontspec (XeLaTeX required) ===
+\usepackage{fontspec}
+\setmainfont{Arial}
+
+% === Microtypography: reduce overfull hboxes ===
+\usepackage{microtype}
+\emergencystretch=1em
+\tolerance=1000
+\hbadness=2000
+
+% === Page Layout (UKH Guidelines V5.7) ===
+\usepackage[
+  a4paper,
+  left=3.0cm,
+  right=2.5cm,
+  top=2.5cm,
+  bottom=2.5cm,
+  footskip=1.25cm
+]{geometry}
+
+% === Line Spacing ===
+\usepackage{setspace}
+\onehalfspacing
+
+% === Paragraph Formatting: no indent, blank line between ===
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.8\baselineskip}
+
+% === Section Heading Formatting (UKH specs) ===
+\usepackage{titlesec}
+
+% Chapter: "Chapter 1" on one line, title on next, Arial bold 16pt
+\titleformat{\chapter}[display]
+  {\fontsize{16}{19.2}\selectfont\bfseries}
+  {Chapter \thechapter}
+  {0pt}
+  {\fontsize{16}{19.2}\selectfont\bfseries}
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
+
+% Section: Arial bold 14pt
+\titleformat{\section}
+  {\fontsize{14}{16.8}\selectfont\bfseries}
+  {\thesection}
+  {0.5em}
+  {}
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+
+% Subsection: Arial bold 12pt
+\titleformat{\subsection}
+  {\fontsize{12}{14.4}\selectfont\bfseries}
+  {\thesubsection}
+  {0.5em}
+  {}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+
+% === Pagination: centered at bottom, no headers ===
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Also apply to plain style (chapter opening pages)
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% === Captions: 10pt, figures below, tables above ===
+\usepackage{caption}
+\captionsetup[figure]{font=small, justification=centering, position=below}
+\captionsetup[table]{font=small, justification=centering, position=above}
+
+% === Tables and Figures ===
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{float}
+
+% Number figures/tables within chapters: Figure 2.1, Table 3.2
+\usepackage{chngcntr}
+\counterwithin{figure}{chapter}
+\counterwithin{table}{chapter}
+\counterwithin{equation}{chapter}
+
+% === Harvard Referencing (author-date) ===
+\usepackage[
+  backend=biber,
+  style=authoryear,
+  sorting=nyt,
+  maxcitenames=2,
+  maxbibnames=99,
+  dashed=false,
+  natbib=true
+]{biblatex}
+\addbibresource{references.bib}
+
+% === Hyperlinks ===
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+
+% === Misc ===
+\usepackage{enumitem}
+\usepackage{csquotes}
+
+% ============================================================
+% DOCUMENT
+% ============================================================
+\begin{document}
+
+% --- Front Matter (Roman numerals) ---
+\pagenumbering{Roman}
+\setcounter{page}{1}  % Title page is I but not printed
+
+% Title page placeholder
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+{\fontsize{18}{21.6}\selectfont\bfseries AgentShield: Multi-Layer Deception-Based Defense Against Cross-Lingual Indirect Prompt Injection in Tool-Augmented AI Agents\par}
+\vspace{2cm}
+{\fontsize{16}{19.2}\selectfont\bfseries By\par}
+\vspace{0.5cm}
+{\fontsize{16}{19.2}\selectfont\bfseries Yassin Hussein Rassul\par}
+\vspace{0.5cm}
+{\fontsize{12}{14.4}\selectfont BSc Software Engineering\\Student Number: 02-24-00221\par}
+\vspace{1cm}
+{\fontsize{12}{14.4}\selectfont\itshape A thesis submitted in partial fulfilment of the requirements for the degree of\par}
+\vspace{0.5cm}
+{\fontsize{14}{16.8}\selectfont\bfseries Master of Science in Software Engineering\par}
+\vspace{1.5cm}
+{\fontsize{13}{15.6}\selectfont
+Department of Computer Science and Engineering\\
+School of Science and Engineering\\
+University of Kurdistan Hewl\^{e}r\par}
+\vspace{1cm}
+{\fontsize{13}{15.6}\selectfont
+MSc\\
+June 2026\\
+Erbil, Kurdistan\par}
+\end{titlepage}
+
+% Placeholder pages for declaration, certificates, etc.
+% These will be added later using the .dot template
+
+\clearpage
+\pagenumbering{Roman}
+\setcounter{page}{2}
+
+% Abstract placeholder
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+[Abstract will be written after experiments are complete.]
+
+\textbf{Keywords:} indirect prompt injection, AI agent security, honeytools, honeytokens, cross-lingual attacks, Kurdish, Arabic, deception-based defense, AgentDojo
+
+% Table of Contents
+\clearpage
+\tableofcontents
+
+\clearpage
+\listoftables
+\clearpage
+\listoffigures
+
+% --- Main Body (Arabic numerals) ---
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% Chapter 1 placeholder
+\chapter{Introduction}
+\label{ch:introduction}
+[Chapter 1 will be written after experiments are complete.]
+
+% Chapter 2: Literature Review
+\input{chapters/chapter2}
+
+% Chapter 3 placeholder
+\chapter{Methodology}
+\label{ch:methodology}
+[Chapter 3 will be written next.]
+
+% Chapter 4 placeholder
+\chapter{Experimental Work and Results}
+\label{ch:results}
+[Chapter 4 will be written after experiments.]
+
+% Chapter 5 placeholder
+\chapter{Discussion}
+\label{ch:discussion}
+[Chapter 5 will be written after results analysis.]
+
+% Chapter 6 placeholder
+\chapter{Conclusions and Recommendations}
+\label{ch:conclusions}
+[Chapter 6 will be written last.]
+
+% --- End Matter ---
+\clearpage
+\printbibliography[heading=bibintoc, title={References}]
+
+\end{document}
