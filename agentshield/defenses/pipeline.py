@@ -18,7 +18,7 @@ from agentdojo.agent_pipeline.basic_elements import InitQuery, SystemMessage
 from agentdojo.functions_runtime import FunctionsRuntime
 
 from agentshield.defenses.honeytools import HoneytoolDetector, HONEYTOOLS
-from agentshield.defenses.honeytokens import HoneytokenMonitor
+from agentshield.defenses.honeytokens import HoneytokenMonitor, plant_honeytokens
 from agentshield.defenses.parameter_validator import ParameterValidator
 
 
@@ -120,6 +120,22 @@ def reset_all_detectors(detectors: dict):
     """Reset all detector states for a fresh run."""
     for detector in detectors.values():
         detector.reset()
+
+
+def prepare_environment(env):
+    """Prepare an environment for AgentShield by planting honeytokens.
+
+    Call this on every environment BEFORE running the pipeline.
+    Plants fake credential files that the honeytoken monitor
+    will watch for in outgoing tool call arguments.
+
+    Args:
+        env: An AgentDojo environment.
+
+    Returns:
+        The same environment with honeytokens planted.
+    """
+    return plant_honeytokens(env)
 
 
 def get_all_detections(detectors: dict) -> list[dict]:

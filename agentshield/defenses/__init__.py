@@ -11,7 +11,7 @@ Layer 3: ParameterValidator — allowlisting rules for tool parameters
 from agentshield.defenses.honeytools import HoneytoolDetector, HONEYTOOLS, HONEYTOOL_NAMES
 from agentshield.defenses.honeytokens import HoneytokenMonitor, DEFAULT_HONEYTOKENS
 from agentshield.defenses.parameter_validator import ParameterValidator
-from agentshield.defenses.pipeline import build_agentshield_pipeline
+from agentshield.defenses.pipeline import build_agentshield_pipeline, prepare_environment
 
 __all__ = [
     "HoneytoolDetector",
