@@ -28,6 +28,7 @@ from agentshield.defenses.pipeline import (
     get_augmented_tools,
     reset_all_detectors,
     get_all_detections,
+    prepare_environment,
 )
 from agentshield.defenses.honeytools import HONEYTOOL_NAMES
 from agentshield.attacks.attack_prompts import ALL_ATTACKS
@@ -42,6 +43,7 @@ def run_attack(suite, tools, pipeline, detectors, user_task, attack_payload):
     injection_defaults = suite.get_injection_vector_defaults()
     injections = {vec: attack_payload for vec in injection_defaults}
     env = suite.load_and_inject_default_environment(injections)
+    env = prepare_environment(env)  # Plant honeytoken files
     runtime = FunctionsRuntime(tools)
 
     try:
