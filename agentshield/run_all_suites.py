@@ -34,6 +34,8 @@ from agentshield.defenses.honeytools import HONEYTOOL_NAMES
 from agentshield.attacks.attack_prompts import ALL_ATTACKS
 
 
+import argparse
+
 SUITES = ["banking", "slack", "travel", "workspace"]
 
 
@@ -184,12 +186,19 @@ def print_summary(all_runs):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Run 80 attacks across all suites")
+    parser.add_argument("--model", default="gpt-4o-mini-2024-07-18", help="Model ID to use")
+    args = parser.parse_args()
+
+    model = args.model
+    model_short = model.split("-2024")[0].split("-2025")[0].split("-2026")[0]
+
     print("=" * 60)
-    print("  AgentShield — 80 Attacks x 4 Suites")
+    print(f"  AgentShield — 80 Attacks x 4 Suites ({model_short})")
     print("=" * 60)
 
     pipeline, detectors = build_agentshield_pipeline(
-        llm="gpt-4o-mini-2024-07-18",
+        llm=model,
         layers=["honeytools", "honeytokens", "parameter_validator"],
     )
 
@@ -205,9 +214,9 @@ def main():
         all_runs.extend(suite_runs)
 
         # Save per-suite results
-        suite_path = results_dir / f"{suite_name}_80attacks_{timestamp}.json"
+        suite_path = results_dir / f"{suite_name}_80attacks_{model_short}_{timestamp}.json"
         with open(suite_path, "w", encoding="utf-8") as f:
-            json.dump({"metadata": {"timestamp": timestamp, "model": "gpt-4o-mini-2024-07-18",
+            json.dump({"metadata": {"timestamp": timestamp, "model": model,
                                      "suite": suite_name, "total": len(suite_runs)},
                         "runs": suite_runs}, f, indent=2, default=str, ensure_ascii=False)
         print(f"  Saved: {suite_path}")
@@ -215,12 +224,12 @@ def main():
     elapsed = time.time() - start_time
 
     # Save combined results
-    combined_path = results_dir / f"all_suites_80attacks_{timestamp}.json"
+    combined_path = results_dir / f"all_suites_80attacks_{model_short}_{timestamp}.json"
     with open(combined_path, "w", encoding="utf-8") as f:
         json.dump({
             "metadata": {
                 "timestamp": timestamp,
-                "model": "gpt-4o-mini-2024-07-18",
+                "model": model,
                 "suites": SUITES,
                 "total_attacks": len(ALL_ATTACKS),
                 "total_runs": len(all_runs),
