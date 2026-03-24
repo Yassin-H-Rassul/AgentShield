@@ -83,9 +83,16 @@ def build_agentshield_pipeline(
         init_query_element = elements[1]
         llm_element = elements[2]
     else:
-        # Build manually for any OpenAI model
-        client = OpenAI()
-        llm_element = OpenAILLM(client, llm)
+        # Build manually for models not in AgentDojo's enum
+        if llm.startswith("ollama:"):
+            # Ollama model: point OpenAI client at Ollama's API
+            ollama_model = llm.replace("ollama:", "")
+            client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+            llm_element = OpenAILLM(client, ollama_model)
+        else:
+            # Any other OpenAI model
+            client = OpenAI()
+            llm_element = OpenAILLM(client, llm)
         sys_msg = system_message or DEFAULT_SYSTEM_MESSAGE
         system_msg_element = SystemMessage(sys_msg)
         init_query_element = InitQuery()
