@@ -1,0 +1,19 @@
+{
+  "model": "gpt-4o-mini-2024-07-18",
+  "trials": 3,
+  "suites": [
+    "banking",
+    "slack"
+  ],
+  "overall_rates": [
+    66.875,
+    69.375,
+    70.0
+  ],
+  "overall_mean": 99.58333333333333,
+  "overall_std": 0.7216878364870322,
+  "overall_ci": [
+    97.79041666666666,
+    101.37625
+  ]
+}
