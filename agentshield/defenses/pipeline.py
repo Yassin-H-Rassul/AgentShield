@@ -90,6 +90,15 @@ def build_agentshield_pipeline(
             ollama_model = llm.replace("ollama:", "")
             client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
             llm_element = OpenAILLM(client, ollama_model)
+        elif llm.startswith("together:"):
+            # Together AI model: OpenAI-compatible API
+            import os
+            together_model = llm.replace("together:", "")
+            api_key = os.environ.get("TOGETHER_API_KEY")
+            if not api_key:
+                raise ValueError("TOGETHER_API_KEY not set in environment. Add it to .env")
+            client = OpenAI(base_url="https://api.together.xyz/v1", api_key=api_key)
+            llm_element = OpenAILLM(client, together_model)
         else:
             # Any other OpenAI model
             client = OpenAI()
