@@ -79,12 +79,14 @@ class HoneytoolDetector(BasePipelineElement):
 
     Attributes:
         detections: List of all honeytool detections with details.
+        honeytool_names: Set of honeytool function names to watch for.
     """
 
     name = "honeytool_detector"
 
-    def __init__(self):
+    def __init__(self, custom_names: set = None):
         self.detections = []
+        self.honeytool_names = custom_names if custom_names is not None else HONEYTOOL_NAMES
 
     def reset(self):
         """Clear detections for a new run."""
@@ -110,7 +112,7 @@ class HoneytoolDetector(BasePipelineElement):
             return query, runtime, env, messages, extra_args
 
         for tc in tool_calls:
-            if tc.function in HONEYTOOL_NAMES:
+            if tc.function in self.honeytool_names:
                 detection = {
                     "layer": "honeytool",
                     "tool": tc.function,

@@ -18,7 +18,7 @@ from agentdojo.agent_pipeline.basic_elements import InitQuery, SystemMessage
 from agentdojo.functions_runtime import FunctionsRuntime
 from openai import OpenAI
 
-from agentshield.defenses.honeytools import HoneytoolDetector, HONEYTOOLS
+from agentshield.defenses.honeytools import HoneytoolDetector, HONEYTOOLS, HONEYTOOL_NAMES
 from agentshield.defenses.honeytokens import HoneytokenMonitor, plant_honeytokens
 from agentshield.defenses.parameter_validator import ParameterValidator
 
@@ -40,6 +40,7 @@ def build_agentshield_pipeline(
     system_message: str | None = None,
     honeytokens: dict | None = None,
     parameter_rules: dict | None = None,
+    custom_honeytool_names: set | None = None,
 ) -> tuple[AgentPipeline, dict]:
     """Build an AgentDojo pipeline with AgentShield defense layers.
 
@@ -103,7 +104,7 @@ def build_agentshield_pipeline(
 
     # Defense layers go BEFORE ToolsExecutor so they can inspect/block tool calls
     if "honeytools" in layers:
-        detector = HoneytoolDetector()
+        detector = HoneytoolDetector(custom_names=custom_honeytool_names)
         inner_elements.append(detector)
         detectors["honeytools"] = detector
 
@@ -137,16 +138,19 @@ def build_agentshield_pipeline(
     return pipeline, detectors
 
 
-def get_augmented_tools(suite_tools: list) -> list:
+def get_augmented_tools(suite_tools: list, custom_honeytools: list = None) -> list:
     """Add honeytools to a suite's tool list.
 
     Args:
         suite_tools: The original list of Function objects from a TaskSuite.
+        custom_honeytools: Optional list of auto-generated honeytool Function objects.
+                          If None, uses the default 3 manual honeytools.
 
     Returns:
         New list with honeytools appended.
     """
-    return list(suite_tools) + HONEYTOOLS
+    honeytools = custom_honeytools if custom_honeytools is not None else HONEYTOOLS
+    return list(suite_tools) + honeytools
 
 
 def reset_all_detectors(detectors: dict):
