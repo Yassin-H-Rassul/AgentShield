@@ -1,14 +1,6 @@
 # Secrets
 .env
-
-# Reference thesis (not ours)
-Voices_of_the_Mountains_Deep_Learning_Based_Vocal_Error_Detection/
-
-# Generated HTML traces
-agentshield/runs/**/*.html
-
-# Leftover files (permission issues)
-Thesis Dissertations template style sheets_V5.2.dot
+*.key
 
 # Virtual environment
 .venv/
@@ -20,6 +12,10 @@ __pycache__/
 dist/
 build/
 
+# Excel temp files (open file locks)
+~$*.xlsx
+~$*.xls
+
 # OS
 .DS_Store
 Thumbs.db
@@ -29,6 +25,12 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Claude Code config (personal)
+.claude/
+
+# Stray LaTeX logs
+texput.log
 
 # LaTeX build artifacts
 *.aux
@@ -49,5 +51,16 @@ Thumbs.db
 *.glsdefs
 *.ist
 *.slo
-*.bbl
-*.blg
+
+# Generated HTML traces
+agentshield/runs/**/*.html
+
+# Failed experiment results (Qwen 2.5 72B — not serverless, all errors)
+agentshield/results/*Qwen2.5*
+
+# Incomplete/aborted baseline results from 2026-03-29 (credit ran out)
+agentshield/results/jisa_baseline/*_2026-03-29_*.json
+
+# Not part of this project
+Voices_of_the_Mountains_Deep_Learning_Based_Vocal_Error_Detection/
+Thesis Dissertations template style sheets_V5.2.dot
