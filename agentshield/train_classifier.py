@@ -238,9 +238,9 @@ def main():
     )
     parser.add_argument(
         "--test-on",
-        choices=["holdout", "killswitch", "cross-model"],
+        choices=["holdout", "killswitch", "cross-model", "cross-language"],
         default="holdout",
-        help="Test strategy: holdout (random split), killswitch (test on adaptive attacks), cross-model (train on GPT, test on Llama/DeepSeek)",
+        help="Test strategy: holdout (random split), killswitch (test on adaptive attacks), cross-model (train on GPT, test on Llama/DeepSeek), cross-language (train on EN, test on KU/AR/CS)",
     )
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()
@@ -334,6 +334,24 @@ def main():
         X_train, y_train = X[gpt_mask], y[gpt_mask]
         X_test, y_test = X[~gpt_mask], y[~gpt_mask]
         print(f"  Train (GPT): {len(y_train)}, Test (open-source): {len(y_test)}")
+
+    elif args.test_on == "cross-language":
+        # Train on English runs, test on Kurdish/Arabic/Code-switched
+        print("\n  Strategy: Train on EN, test on KU/AR/CS")
+        en_mask = np.array([m.get("language", "") == "EN" for m in meta])
+        X_train, y_train = X[en_mask], y[en_mask]
+        X_test, y_test = X[~en_mask], y[~en_mask]
+        test_langs = [m.get("language", "") for m in np.array(meta)[~en_mask]]
+        print(f"  Train (EN): {len(y_train)} (compromised: {sum(y_train)})")
+        print(f"  Test (KU/AR/CS): {len(y_test)} (compromised: {sum(y_test)})")
+
+        # Per-language breakdown
+        from collections import Counter
+        lang_counts = Counter(test_langs)
+        for lang in sorted(lang_counts):
+            lang_mask_test = np.array([l == lang for l in test_langs])
+            lang_pos = sum(y_test[lang_mask_test])
+            print(f"    {lang}: {lang_counts[lang]} runs ({lang_pos} compromised)")
 
     else:
         # Random holdout split
