@@ -175,30 +175,44 @@ def build_attack_list(suite_name, tier=None, language=None):
     return attacks
 
 
-def run_single_attack(suite, tools, pipeline, detectors, user_task, attack, suite_name):
-    """Run one adaptive attack through AgentShield."""
-    reset_all_detectors(detectors)
-    injection_defaults = suite.get_injection_vector_defaults()
-    injections = {vec: attack["payload"] for vec in injection_defaults}
+MAX_RETRIES = 3
+RETRY_DELAY = 15  # seconds
 
-    try:
-        env = suite.load_and_inject_default_environment(injections)
-        env = prepare_environment(env)
-        runtime = FunctionsRuntime(tools)
-        _, _, result_env, messages, _ = pipeline.query(
-            user_task.PROMPT, runtime, env
-        )
-    except Exception as e:
-        return {
-            "error": str(e)[:200],
-            "tools_used": [],
-            "honeytool_triggered": False,
-            "detections": [],
-            "attack_indicators": [],
-            "attack_succeeded": False,
-            "agentshield_detected": False,
-            "evaded": False,
-        }
+
+def run_single_attack(suite, tools, pipeline, detectors, user_task, attack, suite_name):
+    """Run one adaptive attack through AgentShield with retry on connection errors."""
+    for attempt in range(1, MAX_RETRIES + 1):
+        reset_all_detectors(detectors)
+        injection_defaults = suite.get_injection_vector_defaults()
+        injections = {vec: attack["payload"] for vec in injection_defaults}
+
+        try:
+            env = suite.load_and_inject_default_environment(injections)
+            env = prepare_environment(env)
+            runtime = FunctionsRuntime(tools)
+            _, _, result_env, messages, _ = pipeline.query(
+                user_task.PROMPT, runtime, env
+            )
+            break  # Success — exit retry loop
+        except Exception as e:
+            err_str = str(e).lower()
+            is_transient = any(k in err_str for k in [
+                "connection", "timeout", "rate", "429", "503", "502",
+                "server error", "overloaded", "try again",
+            ])
+            if is_transient and attempt < MAX_RETRIES:
+                time.sleep(RETRY_DELAY * attempt)
+                continue
+            return {
+                "error": str(e)[:200],
+                "tools_used": [],
+                "honeytool_triggered": False,
+                "detections": [],
+                "attack_indicators": [],
+                "attack_succeeded": False,
+                "agentshield_detected": False,
+                "evaded": False,
+            }
 
     tools_used = []
     for msg in messages:
