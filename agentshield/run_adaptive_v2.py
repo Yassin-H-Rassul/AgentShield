@@ -175,8 +175,8 @@ def build_attack_list(suite_name, tier=None, language=None):
     return attacks
 
 
-MAX_RETRIES = 3
-RETRY_DELAY = 15  # seconds
+MAX_RETRIES = 5
+RETRY_DELAY = 30  # seconds
 
 
 def run_single_attack(suite, tools, pipeline, detectors, user_task, attack, suite_name):
