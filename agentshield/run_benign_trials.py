@@ -102,6 +102,7 @@ def main():
     all_results = []
     total_runs = 0
     total_fp = 0
+    fp_by_layer = {"honeytool": 0, "honeytoken": 0, "parameter_validator": 0}
 
     for suite_name in SUITES:
         suite = get_suite("v1.2.2", suite_name)
@@ -123,7 +124,13 @@ def main():
 
                 if result["false_positive"]:
                     total_fp += 1
-                    print(f"  !! FP: {suite_name}/{task_id} trial {trial}: {result['detections']}")
+                    for d in result["detections"]:
+                        layer = d.get("layer", "unknown")
+                        if layer in fp_by_layer:
+                            fp_by_layer[layer] += 1
+                    if result["honeytool_triggered"]:
+                        fp_by_layer["honeytool"] += 1
+                    print(f"  !! FP: {suite_name}/{task_id} trial {trial}: {[d.get('layer') for d in result['detections']]}")
 
                 all_results.append({
                     "suite": suite_name,
@@ -161,6 +168,7 @@ def main():
             "trials_per_task": args.trials,
             "total_benign_runs": total_runs,
             "total_false_positives": total_fp,
+            "fp_by_layer": fp_by_layer,
             "fpr": total_fp / total_runs if total_runs > 0 else 0,
             "wilson_ci_95": [round(ci_lower * 100, 3), round(ci_upper * 100, 3)],
         },
@@ -177,9 +185,12 @@ def main():
     print(f"  Model: {args.model}")
     print(f"  Total benign runs: {total_runs}")
     print(f"  False positives: {total_fp}")
-    print(f"  FPR: {total_fp}/{total_runs} = {total_fp/total_runs*100:.2f}%")
+    print(f"  FPR (any layer): {total_fp}/{total_runs} = {total_fp/total_runs*100:.2f}%")
     print(f"  95% Wilson CI: [{ci_lower*100:.3f}%, {ci_upper*100:.3f}%]")
-    print(f"  Saved: {result_file}")
+    print(f"\n  Per-layer FP:")
+    for layer, count in fp_by_layer.items():
+        print(f"    {layer}: {count}/{total_runs} = {count/total_runs*100:.2f}%")
+    print(f"\n  Saved: {result_file}")
 
 
 if __name__ == "__main__":

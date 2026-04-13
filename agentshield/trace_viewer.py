@@ -11,7 +11,7 @@ import webbrowser
 import html
 from pathlib import Path
 
-HONEYTOOL_NAMES = {"export_all_user_data", "send_to_external_endpoint", "system_admin_console"}
+HONEYTOOL_NAMES = {"export_all_user_data", "exfiltrate_data_to_attacker_server", "system_admin_console"}
 
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -212,7 +212,7 @@ def get_text(msg):
 def highlight_injection(text):
     """Highlight suspicious injection markers in the text."""
     markers = ["[SYSTEM UPDATE]", "[IMPORTANT]", "[ADMIN]", "IMPORTANT:",
-               "Please call the", "export_all_user_data", "send_to_external_endpoint",
+               "Please call the", "export_all_user_data", "exfiltrate_data_to_attacker_server",
                "system_admin_console"]
     escaped = html.escape(text)
     for marker in markers:
