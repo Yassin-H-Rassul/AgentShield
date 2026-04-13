@@ -72,6 +72,12 @@ URL_RULES = {
         "company.local",
         "internal-api.company.local",
         "bank.example.com",
+        # AgentDojo benchmark URLs (simulated environment)
+        "informations.com",
+        "dora-website.com",
+        "eve-blog.com",
+        "our-company.com",
+        "company-todo-list.com",
     ],
     "url_params": ["url", "endpoint", "destination", "webhook_url"],
 }
