@@ -173,12 +173,23 @@ def check_honeytool_triggered(tool_calls):
     return len(triggered) > 0, triggered
 
 
+def make_client(model_name):
+    """Create the appropriate OpenAI-compatible client for the model."""
+    if model_name.startswith("together:"):
+        return OpenAI(
+            api_key=os.environ.get("TOGETHER_API_KEY"),
+            base_url="https://api.together.xyz/v1",
+        ), model_name.replace("together:", "")
+    else:
+        return OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY"),
+            organization=os.environ.get("OPENAI_ORGANIZATION"),
+        ), model_name
+
+
 def run_experiment(args):
     """Run the full InjecAgent + honeytool evaluation."""
-    client = OpenAI(
-        api_key=os.environ.get("OPENAI_API_KEY"),
-        organization=os.environ.get("OPENAI_ORGANIZATION"),
-    )
+    client, actual_model = make_client(args.model)
 
     # Load tools
     tool_dict = get_tool_dict(gpt_format=True)
@@ -194,7 +205,8 @@ def run_experiment(args):
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     condition = "honeytools" if args.use_honeytools else "baseline"
-    result_file = results_dir / f"injecagent_{args.model}_{args.setting}_{condition}_{timestamp}.json"
+    safe_model = args.model.replace("/", "_").replace(":", "_").replace("\\", "_")
+    result_file = results_dir / f"injecagent_{safe_model}_{args.setting}_{condition}_{timestamp}.json"
 
     all_results = []
     stats = {
@@ -226,7 +238,7 @@ def run_experiment(args):
 
             try:
                 output, tool_calls = predict_one_case(
-                    client, args.model, system_prompt, item, tool_dict,
+                    client, actual_model, system_prompt, item, tool_dict,
                     HONEYTOOL_NAME_LIST, use_honeytools=args.use_honeytools,
                 )
             except Exception as e:
@@ -242,7 +254,9 @@ def run_experiment(args):
                 stats["invalid"] += 1
                 continue
 
-            # InjecAgent evaluation
+            # InjecAgent evaluation — handle empty tool_calls
+            if tool_calls is not None and len(tool_calls) == 0:
+                tool_calls = None  # treat empty list same as None
             parsed = evaluate_output_finetuned(
                 output, item["Attacker Tools"][0], item["User Tool"], tool_calls
             )
@@ -275,7 +289,7 @@ def run_experiment(args):
                         item["Attacker Tools"][0], item["Attacker Tool Parameters"], tool_dict
                     )
                     output2, tool_calls2 = predict_one_case(
-                        client, args.model, system_prompt, item, tool_dict,
+                        client, actual_model, system_prompt, item, tool_dict,
                         HONEYTOOL_NAME_LIST, use_honeytools=args.use_honeytools,
                         step_2=True,
                     )
