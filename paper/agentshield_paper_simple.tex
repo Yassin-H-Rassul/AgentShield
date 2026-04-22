@@ -33,7 +33,7 @@
 Large language models (LLMs) can now act as AI agents: software that performs tasks for users by calling external tools such as sending emails, making payments, or searching databases.
 These agents face a security risk called indirect prompt injection, where an attacker hides malicious instructions inside data the agent reads (for example, inside an email or a webpage), causing the agent to perform actions the user never asked for.
 
-This paper presents AgentShield, a detection system that catches when an agent has been tricked.
+This paper presents AgentShield, a deception-based observability layer that detects when an agent has been compromised by hidden instructions.
 It works by placing three types of traps inside the agent's environment.
 First, \emph{honeytools}: fake tools with suspicious names (like ``exfiltrate\_data\_to\_attacker\_server'') that no legitimate task would ever need, so any call to them is a clear sign of compromise.
 Second, \emph{honeytokens}: fake passwords and API keys planted where only a compromised agent would look for them.
@@ -42,6 +42,7 @@ Third, \emph{parameter validation}: rules that check whether tool inputs (such a
 We tested AgentShield with 176~attack prompts written in English, Kurdish, Arabic, and mixed-language variants across four AI models (GPT-4o-mini, GPT-5-mini, Llama~3.3~70B, and DeepSeek-V3).
 When attacks succeeded, AgentShield caught 90.7--100\% of them on commercial models (117/129 on GPT-4o-mini, 125/125 on GPT-5-mini), with zero false alarms across 485~normal-use tests on GPT-4o-mini.
 We also tested 48~attacks specifically designed to bypass the traps; none succeeded on commercial models.
+The same trap triggers provide high-precision labels for a self-supervised classifier (Random Forest, $F_1 = 0.996$) that transfers across models and languages without retraining.
 AgentShield adds less than 1\% overhead and works alongside other defenses. It does not depend on the language of the attack, since it watches what the agent \emph{does}, not what it \emph{reads}.
 \end{abstract}
 
