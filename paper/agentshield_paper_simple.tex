@@ -520,6 +520,38 @@ AgentShield          & \multicolumn{3}{c}{(behavioural, language-agnostic)} & 0\
 \end{tabular}
 \end{table}
 
+\subsection{Spotlighting Baseline Comparison}
+\label{sec:spotlighting}
+
+AgentDojo ships with one built-in defense: spotlighting~\citep{hines2024spotlighting}, which wraps untrusted tool outputs in delimiter tags and instructs the model to ignore instructions inside them.
+The original paper reported ${\sim}50\%$ attack-success-rate (ASR) reduction on GPT-3.5 text-completion tasks; Table~\ref{tab:spotlight} tests whether this transfers to current tool-calling agents (512~runs per model per condition).
+
+\begin{table}[H]
+\centering
+\caption{Spotlighting baseline across four models. ASR~=~attack success rate.}
+\label{tab:spotlight}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{No-Defense ASR} & \textbf{Spotlighting ASR} & \textbf{Change} \\
+\midrule
+GPT-4o-mini   & 10.0\% & 13.3\% & $+3.3$ pp \\
+GPT-5-mini    & 0.0\%  & 0.0\%  & n/a$^\dagger$ \\
+Llama 3.3 70B & 1.8\%  & 0.2\%  & $-1.6$ pp \\
+DeepSeek-V3   & 7.2\%  & 7.2\%  & $\phantom{+}0$ pp \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize $^\dagger$GPT-5-mini produced zero successful attacks in either condition;} \\
+\multicolumn{4}{l}{\footnotesize spotlighting's effect cannot be estimated.} \\
+\end{tabular}
+\end{table}
+
+Spotlighting's behaviour varies widely across models.
+It reduced ASR on Llama~3.3, had no effect on DeepSeek-V3, and \emph{increased} ASR on GPT-4o-mini by 3.3~percentage points.
+Three of four models saw no benefit or a regression, so the delimiting variant cannot be relied upon as a single-layer defense in the tool-calling setting.
+
+Because spotlighting is a prevention defense (it does not produce detection signals), it is complementary to AgentShield rather than redundant.
+In a combined evaluation on GPT-4o-mini (banking and messaging suites, Set~A, 160~runs), spotlighting~+~AgentShield reached 71.9\% detection, against 0\% for spotlighting alone.
+The two target different failure modes: spotlighting attempts to stop injection, AgentShield detects compromise once injection succeeds.
+
 \subsection{Adaptive Attack Resilience}
 \label{sec:adaptive}
 
