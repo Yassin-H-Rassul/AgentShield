@@ -75,17 +75,12 @@ Neither addresses indirect prompt injection through tool responses, and neither 
 This paper presents AgentShield, a system that places three types of traps inside an AI agent's tool interface.
 We test it on the AgentDojo benchmark~\citep{debenedetti2024agentdojo} with 176~attack prompts in four languages across four models from three providers.
 
-\paragraph{Contributions.}
-This paper makes three contributions:
-\begin{enumerate}
-    \item \textbf{The AgentShield framework.}  Three layers of traps (fake tools, fake credentials, and input-checking rules) that detect when an agent has been hijacked.  Unlike CHeaT~\citep{ayzenshteyn2025cloak}, which protects network infrastructure \emph{from} rogue agents, AgentShield protects the \emph{agent itself} from being tricked.  Unlike CyberArk's blog-post prototype~\citep{rabin2025cyberark}, AgentShield targets indirect prompt injection (not direct manipulation) and is evaluated across models and languages.
+\paragraph{Contribution.}
+This paper's contribution is \textbf{AgentShield} --- a deception-based observability layer for tool-using LLM agents.
+Decoy tools, decoy credentials, and parameter allowlists instrumented inside the agent's tool interface produce compromise signals during attacker-instruction execution.
+The same triggers yield high-precision trap-derived labels that enable downstream self-supervised classification.
 
-    \item \textbf{Free training labels from traps.}  When a fake tool gets called, we know for certain the agent was compromised.  We use these labels to train a machine-learning classifier ($F_1 = 0.996$) without any manual labeling effort.  The classifier transfers across models ($F_1 = 0.990$) and across languages ($F_1 = 0.997$).
-
-    \item \textbf{First test of an agent defense in Kurdish and Arabic.}  To our knowledge, no published agent defense has been tested in these languages.  We find a small detection gap between English and Kurdish that shrinks from 6.4~percentage points on GPT-4o-mini to 1.9pp on DeepSeek-V3.
-\end{enumerate}
-
-We also show two additional findings: (a)~when we designed 48~attacks that specifically try to avoid the traps, none succeeded on commercial models (1,728 runs); (b)~when we tried a second benchmark (InjecAgent~\citep{zhan2024injecagent}), current models refused almost all its attacks ($<$1\% success), meaning the benchmark has become too easy to be useful.
+We validate this claim through four lenses: (i)~cross-lingual evaluation in English, Kurdish, Arabic, and code-switched variants across four models from three providers (first agent-defense evaluation in Kurdish and Arabic, to our knowledge); (ii)~systematic adaptive-attack evaluation across three tiers of attacker knowledge (1,728~runs, 0\% evasion on commercial models); (iii)~comparison against prevention baselines (spotlighting, input-level classifiers), showing structural limits that deception-based detection avoids; and (iv)~a Random-Forest classifier trained on honeytool-triggered labels ($F_1 = 0.996$ holdout, cross-model $F_1 = 0.990$, cross-language $F_1 = 0.997$).
 
 \paragraph{Why the overall detection rate looks low.}
 The raw detection rate (25.8--36.5\%) can be misleading.
@@ -343,6 +338,12 @@ For example: bank transfers can only go to known account numbers, emails can onl
 Any value not on the list is flagged.
 This layer needs to be configured for each environment (you need to define what counts as ``approved'').
 
+\paragraph{False positives: structural vs empirical.}
+The three layers carry different false-positive risks.
+By construction, legitimate tasks have no reason to invoke a decoy tool, so the honeytool layer carries structurally low false-positive risk.
+The parameter-validator layer, by contrast, is empirically zero-FP in our 485-trial evaluation on GPT-4o-mini (Wilson 95\% CI: $[0\%, 0.79\%]$) but depends on the completeness of the allowlist for each environment.
+Honeytokens are structurally safe when they appear only in regions a legitimate agent has no reason to read.
+
 \paragraph{Working with other defenses.}
 AgentShield is not a replacement for prevention systems like CaMeL or FIDES.
 Prevention systems try to stop attacks; AgentShield detects when an attack gets through, so a human can be alerted or the action can be logged for review.
@@ -463,7 +464,7 @@ When we look only at attacks where the agent \emph{did} follow the attacker's in
 An interesting finding is that different layers matter for different models.
 On GPT-4o-mini, the parameter validator did most of the work (67.5\% of detections).
 On GPT-5-mini, honeytools were the main signal (19.4\% of runs triggered a fake tool).
-On Llama~3.3, honeytools caught nothing, but the honeytoken layer fired for the first time.
+On Llama~3.3, honeytools caught nothing while the honeytoken layer fired for the first time; however, Llama~3.3 produced only 1.8\% successful attacks at baseline, so the resulting low event count constrains statistical power for estimating any layer's marginal contribution on this model class, and aggregate numbers on near-zero-compromise models should be read with this caveat.
 On DeepSeek-V3, all three layers contributed.
 This is why multiple layers matter: no single layer works well on every model.
 
@@ -573,6 +574,11 @@ We then tested whether the classifier works on models and languages it was not t
     \item \textbf{Cross-model}: trained on GPT runs, tested on Llama~3.3 and DeepSeek-V3 $\rightarrow$ $F_1 = 0.990$, zero false positives.  The patterns of compromise look similar across different models.
     \item \textbf{Cross-language}: trained on English runs, tested on Kurdish, Arabic, and code-switched runs $\rightarrow$ $F_1 = 0.997$, 0.1\% false positive rate.  The language of the attack does not change the tool-call pattern.
 \end{itemize}
+
+\paragraph{Scope of the self-supervised signal.}
+Honeytool triggers produce high-precision labels for \emph{trap-triggered} compromises.
+The non-trivial evidence that the classifier captures a generalisable pattern --- rather than memorising the label source --- is the cross-model transfer: trained on GPT runs and tested on Llama~3.3 and DeepSeek-V3, the classifier holds at $F_1 = 0.990$ with zero false positives, even though no honeytool-label instances are shared across the train/test split.
+The classifier's evaluation is scoped to trap-triggered compromises; compromises that evade all three layers are outside this scope and remain a subject for separate evaluation.
 
 \subsection{Cross-Benchmark Probe: InjecAgent}
 \label{sec:injecagent}
