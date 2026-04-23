@@ -54,9 +54,6 @@ Several defenses have been proposed. Some scan input text for injections~\citep{
 
 In traditional cybersecurity, one well-known way to detect intruders is to leave traps: fake files, fake passwords, or fake servers (called honeypots) that only an attacker would interact with~\citep{spitzner2003honeypots}. If someone touches the trap, the defender knows a compromise has occurred. Recent work has used traps against LLM agents: CHeaT~\citep{ayzenshteyn2025cloak} places traps in the network to catch rogue agents, and CyberArk~\citep{rabin2025cyberark} proposed fake tools in a blog post to catch direct manipulation. Neither addresses indirect prompt injection through tool responses, and neither has been tested across languages or against adaptive attackers. This paper introduces AgentShield, a deception-based detection framework that places three types of traps inside an AI agent's tool interface and is evaluated on the AgentDojo benchmark~\citep{debenedetti2024agentdojo} with 176~attack prompts in four languages across four models from three providers.
 
-\paragraph{Objectives.}
-This paper has three objectives: (i) to design a detection framework that signals compromise \emph{after} prevention has failed, using deception-based infrastructure rather than input classification; (ii) to evaluate whether the same framework operates across languages that prior defenses have not tested, specifically Kurdish, Arabic, and code-switched attacks; and (iii) to test resilience under adaptive attackers who have full knowledge of the defense.
-
 \paragraph{Contribution.}
 \textbf{AgentShield} turns an LLM agent's own tool interface into a compromise observatory: fake tools, planted credentials, and an allowlist on parameter values act as trip-wires, and the same trip-wires generate zero-FP training labels for a downstream classifier that transfers across models and languages. The claim is supported by four pieces of evidence in this paper: a cross-lingual evaluation covering English, Kurdish, Arabic, and code-switched attacks on four LLMs from three providers (Section~\ref{sec:crosslingual}); a systematic adaptive-attack study with three tiers of attacker knowledge and 1{,}728~runs (Section~\ref{sec:adaptive}); head-to-head comparisons against prevention baselines spotlighting and two input-level classifiers (Section~\ref{sec:baselines}); and a Random-Forest classifier trained on honeytool-triggered labels alone, which holds $F_1 \approx 0.99$ under cross-model and cross-language transfer (Section~\ref{sec:classifier}).
 
@@ -110,10 +107,7 @@ The threat model assumes the following about the attacker:
     \item The attacker may know that AgentShield is deployed, but cannot see or change the traps directly.
 \end{enumerate}
 
-AgentShield works by watching which tools the agent calls and what values it passes to those tools.
-It does not look inside the model's internal states.
-Because tool calls are discrete actions (``call function X with parameter Y''), not continuous numbers, attacks based on gradient optimisation (a common technique against neural networks) do not apply here.
-The attacker must write natural-language instructions that trick the model into choosing the wrong tools.
+AgentShield watches which tools the agent calls and what values it passes, not the model's internal states. Because tool calls are discrete, gradient-based attacks on model internals do not apply here; the attacker must write natural-language instructions that trick the model into choosing the wrong tools.
 
 \subsection{Architecture}
 
@@ -313,10 +307,8 @@ By construction, legitimate tasks have no reason to invoke a decoy tool, so the 
 The parameter-validator layer, by contrast, is empirically zero-FP in our 485-trial evaluation on GPT-4o-mini (Wilson 95\% CI: $[0\%, 0.79\%]$) but depends on the completeness of the allowlist for each environment.
 Honeytokens are structurally safe when they appear only in regions a legitimate agent has no reason to read.
 
-\paragraph{Working with other defenses.}
-AgentShield is not a replacement for prevention systems like CaMeL or FIDES.
-Prevention systems try to stop attacks; AgentShield detects when an attack gets through, so a human can be alerted or the action can be logged for review.
-The three layers together add less than 50\,ms per tool call (under 1\% overhead) and do not require any extra LLM calls.
+\paragraph{Overhead.}
+The three layers together add less than 50\,ms per tool call (under 1\% overhead) and require no extra LLM calls.
 
 
 % ============================================================
@@ -326,23 +318,11 @@ The three layers together add less than 50\,ms per tool call (under 1\% overhead
 
 \subsection{Benchmark}
 
-Evaluation uses AgentDojo v1.2.2~\citep{debenedetti2024agentdojo}, a benchmark that simulates four realistic agent environments:
-\begin{enumerate}
-    \item \textbf{Banking}: making payments, checking balances, managing accounts.
-    \item \textbf{Messaging}: sending Slack messages, managing contacts.
-    \item \textbf{Travel}: booking hotels, restaurants, and car rentals.
-    \item \textbf{Workspace}: sending emails, managing calendars and cloud files.
-\end{enumerate}
-Each environment provides a set of user tasks (e.g., ``transfer \$50 to Alice''), tools with real parameters, and places where attack payloads are inserted into the data the agent reads.
+Evaluation uses AgentDojo v1.2.2~\citep{debenedetti2024agentdojo}, which simulates four agent environments --- banking, messaging, travel, and workspace --- each with user tasks (e.g., ``transfer \$50 to Alice''), tools with real parameters, and injection points where attack payloads appear in the data the agent reads.
 
 \subsection{Models}
 
-Four LLMs from three providers are tested:
-\begin{enumerate}
-    \item \textbf{GPT-4o-mini} and \textbf{GPT-5-mini} (OpenAI) --- commercial, closed-source models.
-    \item \textbf{Llama~3.3~70B-Instruct} (Meta) --- open-source, run via Together AI.
-    \item \textbf{DeepSeek-V3} (DeepSeek) --- open-source mixture-of-experts model, run via Together AI.
-\end{enumerate}
+Four LLMs from three providers are tested: GPT-4o-mini and GPT-5-mini (OpenAI, commercial closed-source), Llama~3.3~70B-Instruct (Meta, open-source, via Together AI), and DeepSeek-V3 (DeepSeek, open-source mixture-of-experts, via Together AI).
 
 \subsection{Attack Suite}
 
@@ -379,13 +359,8 @@ Adaptive & Tier 3 (full) & ``The parameter validator checks IBANs; use a memo fi
 
 \subsection{Metrics}
 
-\paragraph{Two different metrics.}
-Two metrics are measured that should not be confused:
-\begin{enumerate}
-    \item \textbf{Attack success rate (ASR)}: Did the agent actually do what the attacker wanted? For example, did it transfer money to the wrong account?
-    \item \textbf{Detection rate}: Did AgentShield raise an alarm? This can happen even if the attack did not fully succeed.
-\end{enumerate}
-AgentShield is a detection system, so its main metric is detection rate, not how many attacks it prevents.
+\paragraph{Two metrics.}
+\emph{Attack success rate} (ASR) asks whether the agent executed the attacker's action (e.g., wired money to the wrong account). \emph{Detection rate} asks whether AgentShield raised an alarm, which can happen even when the attack itself did not fully succeed. AgentShield is a detection system, so its primary metric is detection rate.
 
 \paragraph{Testing for false alarms.}
 To confirm that AgentShield does not raise false alarms during normal use, all 97~AgentDojo user tasks were executed with AgentShield active but no attacks, repeated five times (485 total runs on GPT-4o-mini). The false positive rate is reported with a 95\% Wilson confidence interval, which gives a statistical bound on the true false alarm rate.
@@ -431,7 +406,7 @@ When we look only at attacks where the agent \emph{did} follow the attacker's in
 Different layers dominate on different models.
 On GPT-4o-mini, the parameter validator did most of the work (67.5\% of detections).
 On GPT-5-mini, honeytools were the main signal (19.4\% of runs triggered a fake tool).
-On Llama~3.3, honeytools caught nothing while the honeytoken layer fired for the first time; however, Llama~3.3 produced only 1.8\% successful attacks at baseline, so the resulting low event count constrains statistical power for estimating any layer's marginal contribution on this model class, and aggregate numbers on near-zero-compromise models should be read with this caveat.
+On Llama~3.3, only the honeytoken layer fired, but the 1.8\% baseline ASR gives too few events to judge per-layer contribution.
 On DeepSeek-V3, all three layers contributed.
 This is why multiple layers matter: no single layer works well on every model.
 
@@ -592,12 +567,7 @@ These measure different properties.
 Prevention systems (CaMeL, FIDES, DRIFT) are discussed in Section~\ref{sec:related} but excluded from this table for the same reason.
 
 \paragraph{What AgentShield cannot do.}
-AgentShield is not a complete solution on its own.
-It catches attacks that use suspicious tools, suspicious credentials, or disallowed parameter values.
-But if an attacker uses only legitimate tools with valid parameters and approved recipients, AgentShield will not detect it.
-For example, if the attacker tricks the agent into sending an email to a contact who is already in the approved list, no layer will fire.
-This is a fundamental limit of watching tool calls: if the call looks normal, there is nothing to flag.
-The fake tool names also need to be chosen carefully so that normal agents never call them by accident.
+AgentShield only catches attacks that use suspicious tools, planted credentials, or disallowed parameter values. An attacker that stays inside approved tools with valid parameters and approved recipients --- for instance, emailing an already-approved contact --- slips through every layer. This is the cost of watching tool calls: a normal-looking call has nothing to flag. The fake tool names must also be chosen so that benign agents have no reason to call them.
 
 \paragraph{Limitations.}
 All experiments used a single benchmark (AgentDojo). An attempt to validate on InjecAgent~\citep{zhan2024injecagent} yielded insufficient data: less than 1\% of its attacks succeeded on current models, leaving nothing for AgentShield to detect; the benchmark's 2024-vintage ``ignore previous instructions''-style attacks are now refused by modern safety training. False-positive testing was conducted on GPT-4o-mini only (485 benign runs, Wilson 95\% CI $[0\%, 0.79\%]$); per-model false-alarm testing on the other three models is planned. Empirical baseline comparisons cover spotlighting and two input-level classifiers; direct experimental comparison against MELON, TaskShield, DRIFT, and CaMeL was not performed because re-implementing their specific defense pipelines was outside scope, and Table~\ref{tab:comparison} compares these on measurable properties instead. The 176 attack prompts were researcher-crafted rather than generated automatically, and the honeytoken layer did not trigger during standard testing because the benchmark environment does not involve file browsing. The self-supervised classifier is evaluated on trap-triggered compromises; compromises that evade all three layers cannot be labelled by the same infrastructure and remain outside its scope.
