@@ -528,11 +528,7 @@ Honeytool triggers give zero-false-positive labels for training, which lets a do
 The classifier looks at 30~features describing the agent's behaviour: how many tools were called, what types of tools (read vs.\ write), whether the agent gathered data before performing a write action, and similar patterns.
 On held-out test data it achieved $F_1 = 0.996$ (precision $= 1.000$, recall $= 0.991$) with zero false positives across 525~benign samples.
 
-The classifier was then tested on models and languages it was not trained on:
-\begin{enumerate}
-    \item \textbf{Cross-model}: trained on GPT runs, tested on Llama~3.3 and DeepSeek-V3 $\rightarrow$ $F_1 = 0.990$, zero false positives. The patterns of compromise look similar across different models.
-    \item \textbf{Cross-language}: trained on English runs, tested on Kurdish, Arabic, and code-switched runs $\rightarrow$ $F_1 = 0.997$, 0.1\% false positive rate. The language of the attack does not change the tool-call pattern.
-\end{enumerate}
+The classifier was then tested on models and languages it had not been trained on. In the cross-model setting, trained on GPT runs and tested on Llama~3.3 and DeepSeek-V3, it reached $F_1 = 0.990$ with zero false positives; the patterns of compromise look similar across different models. In the cross-language setting, trained on English runs and tested on Kurdish, Arabic, and code-switched attacks, it reached $F_1 = 0.997$ with a 0.1\% false positive rate; the language of the attack does not change the tool-call pattern.
 
 \paragraph{Scope of the self-supervised signal.}
 Honeytool triggers produce high-precision labels for \emph{trap-triggered} compromises.
