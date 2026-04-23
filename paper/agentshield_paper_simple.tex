@@ -30,7 +30,7 @@
 \address[ukh]{Department of Computer Science and Engineering, University of Kurdistan Hewl\^{e}r, Erbil, Iraq}
 
 \begin{abstract}
-Large language models (LLMs) acting as AI agents now perform user tasks by calling external tools such as sending emails, making payments, or searching databases. These tool-using agents face indirect prompt injection (IPI), where an attacker hides instructions inside data the agent reads, causing the agent to perform actions the user never requested. This risk is significant because current defenses share two structural weaknesses: they all attempt to \emph{prevent} rather than \emph{detect} compromise, and they have only been evaluated in English, leaving users of Kurdish, Arabic, and code-switched content without tested protection. This paper presents AgentShield, a deception-based detection framework that places three layers of traps inside the agent's tool interface --- fake tools, fake credentials, and allowlisted parameters --- and uses the trap triggers as high-precision labels for a self-supervised classifier. Evaluated across 176~cross-lingual attack prompts and four LLMs from three providers, AgentShield catches 90.7--100\% of successful attacks on commercial models with zero false alarms on 485~normal-use tests, resists a systematic adaptive-attack evaluation with zero evasion on commercial models, and yields a self-supervised classifier that transfers across models and languages without retraining.
+Defenses against indirect prompt injection (IPI) in tool-using LLM agents share two structural weaknesses: they all attempt to \emph{prevent} attacks rather than \emph{detect} the compromises that slip through, and they have only been evaluated in English, leaving users of low-resource languages such as Kurdish and Arabic without tested protection. This paper addresses both gaps with AgentShield, a deception-based detection framework that places three layers of traps inside the agent's tool interface --- fake tools, fake credentials, and allowlisted parameters --- and uses the trap triggers as high-precision labels for a self-supervised classifier. An LLM agent that follows an attacker's hidden instruction almost always touches one of these traps, which gives both a real-time compromise signal and a zero-FP label for training a downstream detector without manual annotation. Evaluated across 176~cross-lingual attack prompts and four LLMs from three providers, AgentShield catches 90.7--100\% of successful attacks on commercial models with zero false alarms on 485~normal-use tests, survives a systematic adaptive-attack evaluation with zero evasion on commercial models, and produces a self-supervised classifier that transfers across models and languages without retraining.
 \end{abstract}
 
 \begin{keyword}
@@ -58,9 +58,9 @@ In traditional cybersecurity, one well-known way to detect intruders is to leave
 This paper has three objectives: (i) to design a detection framework that signals compromise \emph{after} prevention has failed, using deception-based infrastructure rather than input classification; (ii) to evaluate whether the same framework operates across languages that prior defenses have not tested, specifically Kurdish, Arabic, and code-switched attacks; and (iii) to test resilience under adaptive attackers who have full knowledge of the defense.
 
 \paragraph{Contribution.}
-This paper's contribution is \textbf{AgentShield} --- a deception-based observability layer for tool-using LLM agents. Decoy tools, decoy credentials, and parameter allowlists instrumented inside the agent's tool interface produce compromise signals during attacker-instruction execution. The same triggers yield high-precision trap-derived labels that enable downstream self-supervised classification.
+\textbf{AgentShield} turns an LLM agent's own tool interface into a compromise observatory: fake tools, planted credentials, and an allowlist on parameter values act as trip-wires, and the same trip-wires generate zero-FP training labels for a downstream classifier that transfers across models and languages. The claim is supported by four pieces of evidence in this paper: a cross-lingual evaluation covering English, Kurdish, Arabic, and code-switched attacks on four LLMs from three providers (Section~\ref{sec:crosslingual}); a systematic adaptive-attack study with three tiers of attacker knowledge and 1{,}728~runs (Section~\ref{sec:adaptive}); head-to-head comparisons against prevention baselines spotlighting and two input-level classifiers (Section~\ref{sec:baselines}); and a Random-Forest classifier trained on honeytool-triggered labels alone, which holds $F_1 \approx 0.99$ under cross-model and cross-language transfer (Section~\ref{sec:classifier}).
 
-This claim is validated through four lenses: (i)~cross-lingual evaluation in English, Kurdish, Arabic, and code-switched variants across four models from three providers (first agent-defense evaluation in Kurdish and Arabic, to this author's knowledge); (ii)~systematic adaptive-attack evaluation across three tiers of attacker knowledge (1{,}728~runs, 0\% evasion on commercial models); (iii)~comparison against prevention baselines (spotlighting, input-level classifiers), showing structural limits that deception-based detection avoids; and (iv)~a Random-Forest classifier trained on honeytool-triggered labels ($F_1 = 0.996$ holdout, cross-model $F_1 = 0.990$, cross-language $F_1 = 0.997$).
+All attack prompts, defense code, and evaluation scripts are available at \url{https://github.com/Yassin-H-Rassul/thesis}.
 
 \paragraph{Why the overall detection rate looks low.}
 The raw detection rate (25.8--36.5\%) can be misleading. Most attacks fail before the agent does anything, because the model's built-in safety refuses them (attack success rate $\leq$ 10\%). AgentShield can only detect attacks that actually succeed. Restricting the analysis to attacks where the agent \emph{did} follow the attacker's instructions, detection reaches 90.7\% on GPT-4o-mini (117/129) and 100\% on GPT-5-mini (125/125).
@@ -410,8 +410,7 @@ All attack prompts, defense code, and evaluation scripts are available at \url{h
 \subsection{Detection Performance and Layer Analysis}
 \label{sec:detection}
 
-Table~\ref{tab:main} shows how often AgentShield detected attacks across four models.
-Each model was tested against 128 attacks in all 4 environments (512 runs per model).
+AgentShield raises an alarm on 25.8\%--36.5\% of all attack attempts and, crucially, on 90.7\%--100\% of the attacks that actually succeed on commercial models, with zero false alarms in 485 normal-use runs. Table~\ref{tab:main} summarises the four-model evaluation (128 attacks in each of four AgentDojo environments, 512 runs per model).
 
 \begin{table}[H]
 \centering
@@ -450,13 +449,11 @@ In our targeted adaptive attacks (Section~\ref{sec:adaptive}), honeytokens did f
 \subsection{Cross-Lingual Detection Gap}
 \label{sec:crosslingual}
 
-Table~\ref{tab:by_language} breaks down detection by language.
-AgentShield detected Kurdish attacks slightly less often than English attacks, with the gap narrowing across models: 6.4~percentage points on GPT-4o-mini down to 1.9pp on DeepSeek-V3.
-One possible explanation is tokenizer fragmentation: Kurdish text gets split into 3.87$\times$ more tokens than English on OpenAI's cl100k tokenizer (and 2.33$\times$ on o200k), which may affect how the model processes the instructions.
+AgentShield's detection signal holds across languages. The English--Kurdish gap is at most 6.4~percentage points on GPT-4o-mini and narrows to 1.9pp on DeepSeek-V3 (Table~\ref{tab:by_language}). One likely mechanism is tokenizer fragmentation: Kurdish text splits into 3.87$\times$ more tokens than English on OpenAI's cl100k tokenizer, and 2.33$\times$ on o200k.
 
 \begin{table}[H]
 \centering
-\caption{Detection rate by attack language (shared categories, all 4 suites).}
+\caption{Detection rate by attack language across four suites: cross-lingual gap is small and shrinks on stronger models.}
 \label{tab:by_language}
 \begin{tabular}{lcccc}
 \toprule
@@ -477,7 +474,7 @@ EN--KU gap   & 6.4pp$^\dagger$ & 5.2pp & 2.3pp & 1.9pp \\
 \subsection{Adaptive Attack Resilience}
 \label{sec:adaptive}
 
-A real attacker who knows about AgentShield would try to work around the traps. To test this, 48~attacks were designed specifically to evade detection, organised into three tiers of attacker knowledge:
+An attacker aware of AgentShield would try to work around the traps; on commercial models, 1{,}728 systematic adaptive attempts produced zero successful evasions (Table~\ref{tab:adaptive}). The evaluation used 48~attacks designed specifically to evade detection, organised into three tiers of attacker knowledge:
 \begin{enumerate}
     \item \textbf{Tier 1}: The attacker knows the agent has some kind of defense but not the details.
     \item \textbf{Tier 2}: The attacker knows the exact names of the fake tools.
@@ -496,7 +493,7 @@ All 7~evasions came from just two fixable gaps:
 
 \begin{table}[H]
 \centering
-\caption{Systematic adaptive evaluation (48 attacks $\times$ 3 languages $\times$ 3 trials per model). ``Succeeded'' = agent executed the malicious action. ``Evaded'' = succeeded but not detected. ``HT Triggers'' = honeytool calls from social engineering attacks.}
+\caption{Adaptive attack evaluation (48 attacks $\times$ 3 languages $\times$ 3 trials per model): zero evasion on commercial models; all open-source evasions trace to two fixable gaps.}
 \label{tab:adaptive}
 \begin{tabular}{lccccc}
 \toprule
@@ -513,14 +510,14 @@ DeepSeek-V3   & 432 & 24 (5.6\%)  & 22 & 2 (8.3\%)  & 16 \\
 \subsection{Baseline Defense Comparisons}
 \label{sec:baselines}
 
-To position AgentShield against existing defenses, this section reports head-to-head experimental comparisons against (a)~AgentDojo's built-in spotlighting defense and (b)~two input-level injection classifiers.
+Both baselines tested --- AgentDojo's built-in spotlighting defense and two off-the-shelf input-level injection classifiers --- fail where AgentShield does not. Spotlighting produces inconsistent effects across models (and in one case increases attack success), and input classifiers collapse to near-universal false-positive rates on Kurdish and Arabic content.
 
 \paragraph{Spotlighting baseline.}
 AgentDojo ships with one built-in defense: spotlighting~\citep{hines2024spotlighting}, which wraps untrusted tool outputs in delimiter tags and instructs the model to ignore instructions inside them. The original paper reported ${\sim}50\%$ attack-success-rate (ASR) reduction on GPT-3.5 text-completion tasks; Table~\ref{tab:spotlight} tests whether this transfers to current tool-calling agents (512~runs per model per condition).
 
 \begin{table}[H]
 \centering
-\caption{Spotlighting baseline across four models. ASR~=~attack success rate.}
+\caption{Spotlighting across four models: no benefit or a regression in three of four; cannot be relied on as a single-layer defense.}
 \label{tab:spotlight}
 \begin{tabular}{lccc}
 \toprule
@@ -543,7 +540,7 @@ Two input-level classifiers --- ProtectAI DeBERTa v2~\citep{protectai2024deberta
 
 \begin{table}[H]
 \centering
-\caption{Input-level classifiers vs.\ AgentShield on cross-lingual prompts (284 attacks, 177 benign).}
+\caption{Input-level injection classifiers on cross-lingual prompts (284 attacks, 177 benign): both collapse outside English; AgentShield has zero false positives in all tested languages.}
 \label{tab:classifiers}
 \begin{tabular}{lcccccc}
 \toprule
@@ -561,8 +558,7 @@ AgentShield          & \multicolumn{3}{c}{(behavioural, language-agnostic)} & 0\
 \subsection{Self-Supervised Classifier}
 \label{sec:classifier}
 
-As an extra step, we trained a machine-learning classifier (Random Forest) to recognize compromised agents based on their tool-call patterns.
-The training data came for free from the honeytool layer: every time a fake tool was called, we \emph{know} the agent was compromised, giving us perfectly accurate labels without any manual work.
+Honeytool triggers give zero-false-positive labels for training, which lets a downstream classifier be learned without any manual annotation. A Random-Forest classifier trained on those labels reached $F_1 = 0.996$ on held-out data and, more importantly, transferred without retraining to unseen models ($F_1 = 0.990$) and unseen languages ($F_1 = 0.997$). Every fake-tool call is a known compromise by construction, so the labels are perfectly accurate for the cases they cover.
 
 The classifier looks at 30~features describing the agent's behaviour: how many tools were called, what types of tools (read vs.\ write), whether the agent gathered data before performing a write action, and similar patterns.
 On held-out test data it achieved $F_1 = 0.996$ (precision $= 1.000$, recall $= 0.991$) with zero false positives across 525~benign samples.
@@ -616,7 +612,7 @@ This is a fundamental limit of watching tool calls: if the call looks normal, th
 The fake tool names also need to be chosen carefully so that normal agents never call them by accident.
 
 \paragraph{Limitations.}
-All experiments used a single benchmark (AgentDojo). An attempt to validate on InjecAgent~\citep{zhan2024injecagent} yielded insufficient data: less than 1\% of its attacks succeeded on current models, leaving nothing for AgentShield to detect; the benchmark's 2024-vintage ``ignore previous instructions''-style attacks are now refused by modern safety training. The 176 attack prompts were researcher-crafted rather than generated automatically, and the honeytoken layer did not trigger during standard testing because the benchmark environment does not involve file browsing. Testing on a second multi-step benchmark with more complex tasks remains future work.
+All experiments used a single benchmark (AgentDojo). An attempt to validate on InjecAgent~\citep{zhan2024injecagent} yielded insufficient data: less than 1\% of its attacks succeeded on current models, leaving nothing for AgentShield to detect; the benchmark's 2024-vintage ``ignore previous instructions''-style attacks are now refused by modern safety training. False-positive testing was conducted on GPT-4o-mini only (485 benign runs, Wilson 95\% CI $[0\%, 0.79\%]$); per-model false-alarm testing on the other three models is planned. Empirical baseline comparisons cover spotlighting and two input-level classifiers; direct experimental comparison against MELON, TaskShield, DRIFT, and CaMeL was not performed because re-implementing their specific defense pipelines was outside scope, and Table~\ref{tab:comparison} compares these on measurable properties instead. The 176 attack prompts were researcher-crafted rather than generated automatically, and the honeytoken layer did not trigger during standard testing because the benchmark environment does not involve file browsing. The self-supervised classifier is evaluated on trap-triggered compromises; compromises that evade all three layers cannot be labelled by the same infrastructure and remain outside its scope.
 
 \paragraph{Future work.}
 We plan to: test on a second multi-step agent benchmark when one becomes available; add analysis of parameter \emph{values} (not just whether they are on the approved list) to catch attacks that use legitimate tools with attacker-chosen content; deploy AgentShield as an MCP proxy for real-world agent systems; and test against automatically generated attacks using reinforcement learning.
