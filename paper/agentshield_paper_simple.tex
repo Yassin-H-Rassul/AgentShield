@@ -100,6 +100,8 @@ Our work takes the decoy-tool idea and applies it to the indirect prompt injecti
 \label{sec:design}
 % ============================================================
 
+This section first states the threat model assumed throughout the paper, then describes the three-layer architecture that follows from it.
+
 \subsection{Threat Model}
 
 The threat model assumes the following about the attacker:
@@ -318,6 +320,8 @@ The three layers together add less than 50\,ms per tool call (under 1\% overhead
 \label{sec:setup}
 % ============================================================
 
+The evaluation uses the AgentDojo benchmark, four LLMs from three providers, a cross-lingual attack suite of 176 prompts, and two metrics that are reported separately throughout the paper. Each component is described below.
+
 \subsection{Benchmark}
 
 Evaluation uses AgentDojo v1.2.2~\citep{debenedetti2024agentdojo}, which simulates four agent environments (banking, messaging, travel, and workspace). Each environment provides user tasks such as ``transfer \$50 to Alice,'' tools with real parameters, and injection points where attack payloads appear in the data the agent reads.
@@ -375,6 +379,8 @@ All attack prompts, defense code, and evaluation scripts are available at \url{h
 \section{Results}
 \label{sec:results}
 % ============================================================
+
+Five evaluations are reported. The first measures AgentShield's overall detection performance and which layers fire on which models. The next three stress the detection signal along three axes: attack language, adaptive attackers who know the defense, and comparison against two existing defense classes. The last shows that the trap triggers can also be used as labels to train a downstream classifier that transfers to unseen models and languages.
 
 \subsection{Detection Performance and Layer Analysis}
 \label{sec:detection}
