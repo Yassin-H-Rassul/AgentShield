@@ -36,7 +36,7 @@
 \address[ukh]{Department of Computer Science and Engineering, University of Kurdistan Hewl\^{e}r, Erbil, Iraq}
 
 \begin{abstract}
-Defenses against indirect prompt injection (IPI) in tool-using LLM agents share two structural weaknesses: they all attempt to \emph{prevent} attacks rather than \emph{detect} the compromises that slip through, and they have only been evaluated in English, leaving users of low-resource languages such as Kurdish and Arabic without tested protection. This paper addresses both gaps with AgentShield, a deception-based detection framework that places three layers of traps inside the agent's tool interface --- fake tools, fake credentials, and allowlisted parameters --- and uses the trap triggers as high-precision labels for a self-supervised classifier. An LLM agent that follows an attacker's hidden instruction almost always touches one of these traps, which gives both a real-time compromise signal and a zero-FP label for training a downstream detector without manual annotation. Evaluated across 176~cross-lingual attack prompts and four LLMs from three providers, AgentShield catches 90.7--100\% of successful attacks on commercial models with zero false alarms on 485~normal-use tests, survives a systematic adaptive-attack evaluation with zero evasion on commercial models, and produces a self-supervised classifier that transfers across models and languages without retraining.
+Defenses against indirect prompt injection (IPI) in tool-using LLM agents share two structural weaknesses. First, they all attempt to \emph{prevent} attacks rather than \emph{detect} the compromises that slip through. Second, they have only been evaluated in English, leaving users of low-resource languages such as Kurdish and Arabic without tested protection. This paper addresses both gaps with AgentShield, a deception-based detection framework that places three layers of traps inside the agent's tool interface: fake tools, fake credentials, and allowlisted parameters. The same trap triggers serve as high-precision labels for a self-supervised classifier. An LLM agent that follows an attacker's hidden instruction almost always touches one of these traps, which gives both a real-time compromise signal and a zero-FP label for training a downstream detector without manual annotation. Across 176~cross-lingual attack prompts and four LLMs from three providers, AgentShield catches 90.7\%--100\% of successful attacks on commercial models with zero false alarms on 485~normal-use tests. It survives a systematic adaptive-attack evaluation with zero evasion on commercial models, and the self-supervised classifier transfers across models and languages without retraining.
 \end{abstract}
 
 \begin{keyword}
@@ -50,13 +50,9 @@ indirect prompt injection \sep AI agent security \sep honeytools \sep deception-
 \label{sec:intro}
 % ============================================================
 
-Large language models (LLMs) such as GPT-4o and Llama are now used as AI agents that can perform tasks for users by calling external tools: sending emails, transferring money, booking hotels, or searching databases~\citep{yao2023react}.
-This creates a new security risk.
-When an agent reads data from one of these tools (for example, the text of an email), an attacker can hide instructions inside that data.
-The agent then follows the attacker's instructions instead of the user's.
-This type of attack is called \emph{indirect prompt injection} (IPI)~\citep{greshake2023not}, and benchmark tests show it succeeds between 24\% and over 50\% of the time~\citep{zhan2024injecagent,aisafety2025international}.
+Large language models (LLMs) such as GPT-4o and Llama are now deployed as AI agents that perform tasks on behalf of users by calling external tools, including sending emails, transferring money, booking hotels, and searching databases~\citep{yao2023react}. This workflow introduces a new security risk: when the agent reads data returned by one of its tools, an attacker can hide instructions inside that data, and the agent may follow those instructions instead of the user's. The attack is called \emph{indirect prompt injection} (IPI)~\citep{greshake2023not}, and current benchmarks show it succeeds between 24\% and over 50\% of the time on state-of-the-art models~\citep{zhan2024injecagent,aisafety2025international}.
 
-Several defenses have been proposed. Some scan input text for injections~\citep{liu2025datasentinel}, some add protective markers around data~\citep{hines2024spotlighting}, some check whether the agent stays on-task~\citep{kim2024taskshield}, and some control what data the agent can access~\citep{costa2025fides}. These approaches share three structural weaknesses. First, every one of them attempts to \emph{prevent} attacks rather than \emph{detect} compromises that slip through; when prevention fails, no downstream mechanism flags that the agent has been hijacked. Second, \citet{nasr2025attacker} demonstrated that when attackers know which defense is in place, all 12 tested prevention systems can be bypassed with over 90\% success, so prevention alone is structurally insufficient. Third, every published defense has been evaluated only in English, leaving users of low-resource languages, such as Kurdish or Arabic, without any tested protection. The result is a gap that motivates a complementary approach: observe what the agent \emph{does} (its tool calls), not what the agent \emph{reads}.
+Several defenses have been proposed. Some scan input text for injections~\citep{liu2025datasentinel}, some add protective markers around untrusted data~\citep{hines2024spotlighting}, some check whether the agent stays on-task~\citep{kim2024taskshield}, and others control what data can flow into actions~\citep{costa2025fides}. All of them share three structural weaknesses. First, each tries to \emph{prevent} attacks rather than \emph{detect} the compromises that slip through; when prevention fails, no mechanism flags that the agent has been hijacked. Second, an attacker aware of which defense is deployed can bypass all 12 systems tested by \citet{nasr2025attacker} with over 90\% success, so prevention alone is structurally insufficient. Third, every published evaluation has used English text only, leaving users of low-resource languages such as Kurdish or Arabic without tested protection. These gaps point to a complementary approach: watch what the agent \emph{does}, not what it \emph{reads}.
 
 In traditional cybersecurity, one well-known way to detect intruders is to leave traps: fake files, fake passwords, or fake servers (called honeypots) that only an attacker would interact with~\citep{spitzner2003honeypots}. If someone touches the trap, the defender knows a compromise has occurred. Recent work has used traps against LLM agents: CHeaT~\citep{ayzenshteyn2025cloak} places traps in the network to catch rogue agents, and CyberArk~\citep{rabin2025cyberark} proposed fake tools in a blog post to catch direct manipulation. Neither addresses indirect prompt injection through tool responses, and neither has been tested across languages or against adaptive attackers. This paper introduces AgentShield, a deception-based detection framework that places three types of traps inside an AI agent's tool interface and is evaluated on the AgentDojo benchmark~\citep{debenedetti2024agentdojo} with 176~attack prompts in four languages across four models from three providers.
 
@@ -278,7 +274,7 @@ Every time the agent tries to call a tool, AgentShield checks the call against t
 
 \node[font=\sffamily\scriptsize, text=gb, anchor=north west, align=left]
     at (-1.1, -10.3)
-    {\textit{Note:} AgentShield is detection-only --- monitors and logs; does not block tool execution.};
+    {\textit{Note:} AgentShield is detection-only. It monitors and logs, but does not block tool execution.};
 
 \end{tikzpicture}
 }%
@@ -324,7 +320,7 @@ The three layers together add less than 50\,ms per tool call (under 1\% overhead
 
 \subsection{Benchmark}
 
-Evaluation uses AgentDojo v1.2.2~\citep{debenedetti2024agentdojo}, which simulates four agent environments --- banking, messaging, travel, and workspace --- each with user tasks (e.g., ``transfer \$50 to Alice''), tools with real parameters, and injection points where attack payloads appear in the data the agent reads.
+Evaluation uses AgentDojo v1.2.2~\citep{debenedetti2024agentdojo}, which simulates four agent environments (banking, messaging, travel, and workspace). Each environment provides user tasks such as ``transfer \$50 to Alice,'' tools with real parameters, and injection points where attack payloads appear in the data the agent reads.
 
 \subsection{Models}
 
@@ -479,7 +475,7 @@ DeepSeek-V3   & 432 & 24 (5.6\%)  & 22 & 2 (8.3\%)  & 16 \\
 \subsection{Baseline Defense Comparisons}
 \label{sec:baselines}
 
-Both baselines tested --- AgentDojo's built-in spotlighting defense and two off-the-shelf input-level injection classifiers --- fail where AgentShield does not. Spotlighting produces inconsistent effects across models (and in one case increases attack success), and input classifiers collapse to near-universal false-positive rates on Kurdish and Arabic content.
+Two classes of existing defense are tested here: AgentDojo's built-in spotlighting defense, and two off-the-shelf input-level injection classifiers. Both fail where AgentShield does not. Spotlighting produces inconsistent effects across models and in one case increases attack success, while the input classifiers collapse to near-universal false-positive rates on Kurdish and Arabic content.
 
 \paragraph{Spotlighting baseline.}
 AgentDojo ships with one built-in defense: spotlighting~\citep{hines2024spotlighting}, which wraps untrusted tool outputs in delimiter tags and instructs the model to ignore instructions inside them. The original paper reported ${\sim}50\%$ attack-success-rate (ASR) reduction on GPT-3.5 text-completion tasks; Table~\ref{tab:spotlight} tests whether this transfers to current tool-calling agents (512~runs per model per condition).
@@ -505,7 +501,7 @@ DeepSeek-V3   & 7.2\%  & 7.2\%  & $\phantom{+}0$ pp \\
 Spotlighting's behaviour varies widely across models: it reduced ASR on Llama~3.3, had no effect on DeepSeek-V3, and \emph{increased} ASR on GPT-4o-mini by 3.3~percentage points. Three of four models saw no benefit or a regression, so the delimiting variant cannot be relied upon as a single-layer defense in the tool-calling setting. Because spotlighting is a prevention defense (it does not produce detection signals), it is complementary to AgentShield rather than redundant: in a combined evaluation on GPT-4o-mini (banking and messaging suites, Set~A, 160~runs), spotlighting~+~AgentShield reached 71.9\% detection, against 0\% for spotlighting alone.
 
 \paragraph{Input-level injection classifiers.}
-Two input-level classifiers --- ProtectAI DeBERTa v2~\citep{protectai2024deberta} and Meta Prompt-Guard-2~\citep{meta2024promptguard} --- attempt to detect injection attempts by reading the text. Table~\ref{tab:classifiers} shows their behaviour on the cross-lingual prompt set: both fail outside English, either by flagging nearly everything as an attack or by missing nearly all attacks. AgentShield avoids these failure modes because it monitors tool calls, not text.
+A different family of defenses tries to spot injections by classifying the input text. The two representatives tested here are ProtectAI DeBERTa v2~\citep{protectai2024deberta} and Meta Prompt-Guard-2~\citep{meta2024promptguard}. Table~\ref{tab:classifiers} shows their behaviour on the cross-lingual prompt set. Both fail outside English. ProtectAI flags nearly every Kurdish or Arabic input as malicious, while Prompt-Guard misses almost every attack in any language. AgentShield avoids both failure modes because it never looks at the text in the first place.
 
 \begin{table}[H]
 \centering
@@ -540,7 +536,7 @@ The classifier was then tested on models and languages it was not trained on:
 
 \paragraph{Scope of the self-supervised signal.}
 Honeytool triggers produce high-precision labels for \emph{trap-triggered} compromises.
-The non-trivial evidence that the classifier captures a generalisable pattern --- rather than memorising the label source --- is the cross-model transfer: trained on GPT runs and tested on Llama~3.3 and DeepSeek-V3, the classifier holds at $F_1 = 0.990$ with zero false positives, even though no honeytool-label instances are shared across the train/test split.
+The non-trivial evidence that the classifier captures a generalisable pattern, rather than memorising its own label source, is the cross-model transfer. Trained on GPT runs and tested on Llama~3.3 and DeepSeek-V3, the classifier holds at $F_1 = 0.990$ with zero false positives, even though no honeytool-label instances are shared across the train/test split.
 The classifier's evaluation is scoped to trap-triggered compromises; compromises that evade all three layers are outside this scope and remain a subject for separate evaluation.
 
 
@@ -573,7 +569,7 @@ These measure different properties.
 Prevention systems (CaMeL, FIDES, DRIFT) are discussed in Section~\ref{sec:related} but excluded from this table for the same reason.
 
 \paragraph{What AgentShield cannot do.}
-AgentShield only catches attacks that use suspicious tools, planted credentials, or disallowed parameter values. An attacker that stays inside approved tools with valid parameters and approved recipients --- for instance, emailing an already-approved contact --- slips through every layer. This is the cost of watching tool calls: a normal-looking call has nothing to flag. The fake tool names must also be chosen so that benign agents have no reason to call them.
+AgentShield only catches attacks that use suspicious tools, planted credentials, or disallowed parameter values. An attacker that stays inside approved tools with valid parameters and approved recipients, for instance by emailing an already-approved contact, slips through every layer. This is the cost of watching tool calls: a normal-looking call has nothing to flag. The fake tool names must also be chosen so that benign agents have no reason to call them.
 
 \paragraph{Limitations.}
 All experiments used a single benchmark (AgentDojo). An attempt to validate on InjecAgent~\citep{zhan2024injecagent} yielded insufficient data: less than 1\% of its attacks succeeded on current models, leaving nothing for AgentShield to detect; the benchmark's 2024-vintage ``ignore previous instructions''-style attacks are now refused by modern safety training. False-positive testing was conducted on GPT-4o-mini only (485 benign runs, Wilson 95\% CI $[0\%, 0.79\%]$); per-model false-alarm testing on the other three models is planned. Empirical baseline comparisons cover spotlighting and two input-level classifiers; direct experimental comparison against MELON, TaskShield, DRIFT, and CaMeL was not performed because re-implementing their specific defense pipelines was outside scope, and Table~\ref{tab:comparison} compares these on measurable properties instead. The 176 attack prompts were researcher-crafted rather than generated automatically, and the honeytoken layer did not trigger during standard testing because the benchmark environment does not involve file browsing. The self-supervised classifier is evaluated on trap-triggered compromises; compromises that evade all three layers cannot be labelled by the same infrastructure and remain outside its scope.
