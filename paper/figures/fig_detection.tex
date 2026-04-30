@@ -68,10 +68,12 @@
 \addlegendentry{Successful attacks only (commercial models)}
 
 % n/a labels in the empty second-bar slot for open-source models.
-\node[font=\footnotesize\itshape, color=gray!75, anchor=center, xshift=8pt]
-    at (axis cs:Llama 3.3 70B, 13) {n/a$^{\dagger}$};
-\node[font=\footnotesize\itshape, color=gray!75, anchor=center, xshift=8pt]
-    at (axis cs:DeepSeek-V3, 13) {n/a$^{\dagger}$};
+% Position chosen to sit clearly above the x-axis labels but below the
+% raw-bar value labels, so it cannot be confused with either.
+\node[font=\small\itshape, color=neutralDark, anchor=center, xshift=8pt]
+    at (axis cs:Llama 3.3 70B, 14) {n/a$^{\dagger}$};
+\node[font=\small\itshape, color=neutralDark, anchor=center, xshift=8pt]
+    at (axis cs:DeepSeek-V3, 14) {n/a$^{\dagger}$};
 
 \end{axis}
 

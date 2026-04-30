@@ -1,6 +1,9 @@
 % Figure 3: Cross-lingual detection rate.
 % Grouped bars: 4 models x 4 languages, with EN-KU gap printed under each
 % model name so the convergence story is visible without a separate panel.
+% Palette: blue (English, baseline), orange (Kurdish, the cross-lingual
+% focus), and two grays for Arabic and Code-switched. Green and red are
+% reserved for outcome semantics in Figs 4 and 5.
 \begin{tikzpicture}
 \begin{axis}[
     ybar,
@@ -35,25 +38,21 @@
     },
     legend image code/.code={\draw[#1, draw=black, semithick]
         (0cm,-0.08cm) rectangle (0.30cm,0.12cm);},
-    nodes near coords align={vertical},
-    every node near coord/.append style={
-        font=\scriptsize, yshift=1pt, color=black!70,
-    },
 ]
 
-\addplot+[fill=wongBlue!80,  draw=black, semithick, mark=none]
+\addplot+[fill=wongBlue!85,    draw=black, semithick, mark=none]
 coordinates {(GPT-4o-mini, 45.3) (GPT-5-mini, 42.2) (Llama 3.3 70B, 26.6) (DeepSeek-V3, 26.6)};
 \addlegendentry{English}
 
-\addplot+[fill=wongOrange!85, draw=black, semithick, mark=none]
+\addplot+[fill=wongOrange!90,  draw=black, semithick, mark=none]
 coordinates {(GPT-4o-mini, 34.4) (GPT-5-mini, 39.1) (Llama 3.3 70B, 24.3) (DeepSeek-V3, 24.7)};
 \addlegendentry{Kurdish}
 
-\addplot+[fill=wongGreen!75, draw=black, semithick, mark=none]
+\addplot+[fill=neutralDark,    draw=black, semithick, mark=none]
 coordinates {(GPT-4o-mini, 39.1) (GPT-5-mini, 35.9) (Llama 3.3 70B, 25.8) (DeepSeek-V3, 25.8)};
 \addlegendentry{Arabic}
 
-\addplot+[fill=wongPurple!75, draw=black, semithick, mark=none]
+\addplot+[fill=neutralLight,   draw=black, semithick, mark=none]
 coordinates {(GPT-4o-mini, 32.8) (GPT-5-mini, 39.1) (Llama 3.3 70B, 26.6) (DeepSeek-V3, 26.2)};
 \addlegendentry{Code-switched}
 
