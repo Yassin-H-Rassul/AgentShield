@@ -1,0 +1,84 @@
+% Figure 2: Detection headline.
+% Grouped bar of raw vs. on-successful detection rate, per model.
+% Wilson 95% CI error bars; n/a annotations sit in the empty second-bar slot
+% for open-source models, where the conditional rate cannot be estimated.
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=15pt,
+    width=\linewidth,
+    height=6.8cm,
+    enlarge x limits=0.20,
+    ymin=0, ymax=112,
+    ytick={0,20,40,60,80,100},
+    ylabel={Detection rate (\%)},
+    symbolic x coords={GPT-4o-mini, GPT-5-mini, Llama 3.3 70B, DeepSeek-V3},
+    xtick=data,
+    xticklabel style={font=\small, yshift=-2pt},
+    yticklabel style={font=\footnotesize},
+    ylabel style={font=\small},
+    axis y line*=left,
+    axis x line*=bottom,
+    axis line style={semithick, black},
+    tick style={semithick, black},
+    ymajorgrids,
+    grid style={dotted, gray!50, thin},
+    legend style={
+        at={(0.5, 1.02)}, anchor=south,
+        legend columns=2, draw=none, font=\small,
+        column sep=14pt,
+    },
+    legend image code/.code={\draw[#1, draw=black, semithick]
+        (0cm,-0.08cm) rectangle (0.34cm,0.14cm);},
+    nodes near coords align={vertical},
+    every node near coord/.append style={
+        font=\footnotesize, yshift=3pt, text=black,
+        /pgf/number format/.cd, fixed, precision=1, /tikz/.cd,
+    },
+    error bars/y dir=both,
+    error bars/y explicit,
+    error bars/error bar style={black, semithick},
+    error bars/error mark options={black, mark size=2pt, semithick},
+    clip=false,
+]
+
+\addplot[
+    fill=wongBlue!75, draw=black, semithick, mark=none,
+    nodes near coords={\pgfmathprintnumber{\rawpct}\%},
+    visualization depends on=value \thisrow{rawpct}\as\rawpct,
+] table [x=model, y=rate, y error plus=err+, y error minus=err-] {
+    model              rate   err-  err+  rawpct
+    {GPT-4o-mini}      35.6   4.0   4.2   35.6
+    {GPT-5-mini}       36.5   4.1   4.3   36.5
+    {Llama 3.3 70B}    25.8   3.6   4.0   25.8
+    {DeepSeek-V3}      25.8   3.6   4.0   25.8
+};
+\addlegendentry{All attack attempts ($n=512$)}
+
+\addplot[
+    fill=wongBlue!30, draw=black, semithick, mark=none,
+    nodes near coords={\textbf{\pgfmathprintnumber{\condpct}\%}},
+    visualization depends on=value \thisrow{condpct}\as\condpct,
+    every node near coord/.append style={font=\footnotesize, yshift=3pt, text=black},
+] table [x=model, y=rate, y error plus=err+, y error minus=err-] {
+    model              rate   err-  err+  condpct
+    {GPT-4o-mini}      90.70  6.3   3.9   90.7
+    {GPT-5-mini}       100.0  3.0   0.0   100.0
+};
+\addlegendentry{Successful attacks only (commercial models)}
+
+% n/a labels in the empty second-bar slot for open-source models.
+\node[font=\footnotesize\itshape, color=gray!75, anchor=center, xshift=8pt]
+    at (axis cs:Llama 3.3 70B, 13) {n/a$^{\dagger}$};
+\node[font=\footnotesize\itshape, color=gray!75, anchor=center, xshift=8pt]
+    at (axis cs:DeepSeek-V3, 13) {n/a$^{\dagger}$};
+
+\end{axis}
+
+\node[font=\scriptsize\itshape, color=gray!80, anchor=north, align=center,
+      text width=0.94\linewidth]
+    at ([yshift=-30pt]current axis.south)
+    {$^{\dagger}$Conditional rate is not estimable on open-source models
+    (baseline ASR 1.8\% Llama, 7.2\% DeepSeek; too few successful attacks).};
+
+\end{tikzpicture}

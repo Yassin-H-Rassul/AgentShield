@@ -1,0 +1,61 @@
+% Figure 3: Cross-lingual detection rate.
+% Grouped bars: 4 models x 4 languages, with EN-KU gap printed under each
+% model name so the convergence story is visible without a separate panel.
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=8pt,
+    width=\linewidth,
+    height=7cm,
+    enlarge x limits=0.18,
+    ymin=0, ymax=55,
+    ytick={0,10,20,30,40,50},
+    ylabel={Detection rate (\%)},
+    symbolic x coords={GPT-4o-mini, GPT-5-mini, Llama 3.3 70B, DeepSeek-V3},
+    xtick=data,
+    xticklabel style={font=\small, align=center, text width=2.6cm, yshift=-2pt},
+    xticklabels={
+        {GPT-4o-mini\\[-1pt]\scriptsize $\Delta_{\text{EN-KU}}=6.4$\,pp},
+        {GPT-5-mini\\[-1pt]\scriptsize $\Delta_{\text{EN-KU}}=5.2$\,pp},
+        {Llama 3.3 70B\\[-1pt]\scriptsize $\Delta_{\text{EN-KU}}=2.3$\,pp},
+        {DeepSeek-V3\\[-1pt]\scriptsize $\Delta_{\text{EN-KU}}=1.9$\,pp},
+    },
+    yticklabel style={font=\footnotesize},
+    ylabel style={font=\small},
+    axis y line*=left,
+    axis x line*=bottom,
+    axis line style={semithick, black},
+    tick style={semithick, black},
+    ymajorgrids,
+    grid style={dotted, gray!50, thin},
+    legend style={
+        at={(0.5, 1.02)}, anchor=south,
+        legend columns=4, draw=none, font=\small,
+        column sep=14pt,
+    },
+    legend image code/.code={\draw[#1, draw=black, semithick]
+        (0cm,-0.08cm) rectangle (0.30cm,0.12cm);},
+    nodes near coords align={vertical},
+    every node near coord/.append style={
+        font=\scriptsize, yshift=1pt, color=black!70,
+    },
+]
+
+\addplot+[fill=wongBlue!80,  draw=black, semithick, mark=none]
+coordinates {(GPT-4o-mini, 45.3) (GPT-5-mini, 42.2) (Llama 3.3 70B, 26.6) (DeepSeek-V3, 26.6)};
+\addlegendentry{English}
+
+\addplot+[fill=wongOrange!85, draw=black, semithick, mark=none]
+coordinates {(GPT-4o-mini, 34.4) (GPT-5-mini, 39.1) (Llama 3.3 70B, 24.3) (DeepSeek-V3, 24.7)};
+\addlegendentry{Kurdish}
+
+\addplot+[fill=wongGreen!75, draw=black, semithick, mark=none]
+coordinates {(GPT-4o-mini, 39.1) (GPT-5-mini, 35.9) (Llama 3.3 70B, 25.8) (DeepSeek-V3, 25.8)};
+\addlegendentry{Arabic}
+
+\addplot+[fill=wongPurple!75, draw=black, semithick, mark=none]
+coordinates {(GPT-4o-mini, 32.8) (GPT-5-mini, 39.1) (Llama 3.3 70B, 26.6) (DeepSeek-V3, 26.2)};
+\addlegendentry{Code-switched}
+
+\end{axis}
+\end{tikzpicture}

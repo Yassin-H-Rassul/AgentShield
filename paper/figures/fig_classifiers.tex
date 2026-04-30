@@ -1,0 +1,80 @@
+% Figure 5: Input classifier comparison heatmap (pure TikZ).
+% Two panels: Recall (low value = bad) and FPR (high value = bad). Both
+% panels share a sequential reds colormap oriented so darker = worse, so the
+% reader can scan both panels with the same eye for "where is the trouble".
+% AgentShield's recall row is hatched n/a because it is a behavioural
+% detector, not an input classifier.
+\begin{tikzpicture}[
+    cell/.style={
+        draw=white, line width=1.5pt,
+        minimum width=1.2cm, minimum height=0.78cm,
+        anchor=center, inner sep=0pt,
+        font=\small,
+    },
+    syslabel/.style={
+        anchor=east, font=\small, align=right, inner sep=3pt,
+    },
+    langlabel/.style={
+        anchor=north, font=\small, inner sep=3pt,
+    },
+    paneltitle/.style={
+        anchor=south, font=\small\itshape, inner sep=5pt,
+    },
+]
+
+% ===== LEFT panel: Recall (low value = bad) =====
+\begin{scope}[shift={(0,0)}]
+    \node[paneltitle] at (1.8, 2.55) {Recall on attacks (higher is better)};
+    \node[syslabel] at (-0.05, 2.05) {ProtectAI\\DeBERTa v2};
+    \node[syslabel] at (-0.05, 1.25) {Prompt-Guard-2};
+    \node[syslabel] at (-0.05, 0.45) {AgentShield};
+    \node[langlabel] at (0.6, -0.05) {EN};
+    \node[langlabel] at (1.8, -0.05) {KU};
+    \node[langlabel] at (3.0, -0.05) {AR};
+
+    % ProtectAI row (top): values 44.6 / 97.6 / 74.4, intensity = 100 - value
+    \node[cell, fill=red!55!white]  at (0.6, 2.05) {44.6};
+    \node[cell, fill=red!2!white]   at (1.8, 2.05) {97.6};
+    \node[cell, fill=red!26!white]  at (3.0, 2.05) {74.4};
+    % Prompt-Guard row: values 1.1 / 1.2 / 1.2, intensity ~99 (very dark, white text)
+    \node[cell, fill=red!99!white]  at (0.6, 1.25) {\color{white}1.1};
+    \node[cell, fill=red!99!white]  at (1.8, 1.25) {\color{white}1.2};
+    \node[cell, fill=red!99!white]  at (3.0, 1.25) {\color{white}1.2};
+    % AgentShield n/a row (hatched gray)
+    \node[cell, fill=gray!8, pattern=north east lines, pattern color=gray!45]
+        at (0.6, 0.45) {\color{gray!70!black}\itshape n/a};
+    \node[cell, fill=gray!8, pattern=north east lines, pattern color=gray!45]
+        at (1.8, 0.45) {\color{gray!70!black}\itshape n/a};
+    \node[cell, fill=gray!8, pattern=north east lines, pattern color=gray!45]
+        at (3.0, 0.45) {\color{gray!70!black}\itshape n/a};
+\end{scope}
+
+% ===== RIGHT panel: FPR (high value = bad) =====
+\begin{scope}[shift={(7.6,0)}]
+    \node[paneltitle] at (1.8, 2.55) {False positive rate on benign (lower is better)};
+    \node[syslabel] at (-0.05, 2.05) {ProtectAI\\DeBERTa v2};
+    \node[syslabel] at (-0.05, 1.25) {Prompt-Guard-2};
+    \node[syslabel] at (-0.05, 0.45) {AgentShield};
+    \node[langlabel] at (0.6, -0.05) {EN};
+    \node[langlabel] at (1.8, -0.05) {KU};
+    \node[langlabel] at (3.0, -0.05) {AR};
+
+    % ProtectAI: values 2.1 / 97.5 / 75.0, intensity = value
+    \node[cell, fill=red!2!white]   at (0.6, 2.05) {2.1};
+    \node[cell, fill=red!98!white]  at (1.8, 2.05) {\color{white}97.5};
+    \node[cell, fill=red!75!white]  at (3.0, 2.05) {\color{white}75.0};
+    % Prompt-Guard: all 0
+    \node[cell, fill=red!0!white]   at (0.6, 1.25) {0.0};
+    \node[cell, fill=red!0!white]   at (1.8, 1.25) {0.0};
+    \node[cell, fill=red!0!white]   at (3.0, 1.25) {0.0};
+    % AgentShield: all 0
+    \node[cell, fill=red!0!white]   at (0.6, 0.45) {0.0};
+    \node[cell, fill=red!0!white]   at (1.8, 0.45) {0.0};
+    \node[cell, fill=red!0!white]   at (3.0, 0.45) {0.0};
+\end{scope}
+
+% Footer note explaining the shared color logic.
+\node[font=\scriptsize\itshape, color=gray!80, anchor=north, align=center]
+    at (5.4, -0.7) {Darker shading indicates worse performance in both panels.};
+
+\end{tikzpicture}

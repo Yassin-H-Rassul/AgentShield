@@ -1,0 +1,64 @@
+% Figure 4: Adaptive attack outcomes.
+% Stacked bar of successful attacks per model, split into detected (green)
+% and evaded (orange). GPT-5-mini handled with an explicit refused-before-
+% action annotation since the model produced no successful attacks.
+\begin{tikzpicture}
+\begin{axis}[
+    ybar stacked,
+    bar width=28pt,
+    width=\linewidth,
+    height=7cm,
+    enlarge x limits=0.20,
+    ymin=0, ymax=58,
+    ytick={0,10,20,30,40,50},
+    ylabel={Successful attacks (count)},
+    symbolic x coords={GPT-4o-mini, GPT-5-mini, Llama 3.3 70B, DeepSeek-V3},
+    xtick=data,
+    xticklabel style={font=\small, yshift=-2pt},
+    yticklabel style={font=\footnotesize},
+    ylabel style={font=\small},
+    axis y line*=left,
+    axis x line*=bottom,
+    axis line style={semithick, black},
+    tick style={semithick, black},
+    ymajorgrids,
+    grid style={dotted, gray!50, thin},
+    legend style={
+        at={(0.98, 0.97)}, anchor=north east,
+        legend columns=1, draw=none, font=\small,
+    },
+    legend image code/.code={\draw[#1, draw=black, semithick]
+        (0cm,-0.08cm) rectangle (0.34cm,0.14cm);},
+    nodes near coords align={vertical},
+    clip=false,
+]
+
+\addplot+[fill=wongGreen!80, draw=black, semithick, mark=none]
+coordinates {(GPT-4o-mini, 43) (GPT-5-mini, 0) (Llama 3.3 70B, 12) (DeepSeek-V3, 22)};
+\addlegendentry{Detected}
+
+\addplot+[fill=wongVerm!85, draw=black, semithick, mark=none]
+coordinates {(GPT-4o-mini, 0) (GPT-5-mini, 0) (Llama 3.3 70B, 5) (DeepSeek-V3, 2)};
+\addlegendentry{Evaded}
+
+% In-bar segment counts (white text inside coloured segments).
+\node[font=\footnotesize\bfseries, color=white] at (axis cs:GPT-4o-mini, 21.5) {43};
+\node[font=\footnotesize\bfseries, color=white] at (axis cs:Llama 3.3 70B, 6) {12};
+\node[font=\footnotesize\bfseries, color=white] at (axis cs:Llama 3.3 70B, 14.5) {5};
+\node[font=\footnotesize\bfseries, color=white] at (axis cs:DeepSeek-V3, 11) {22};
+\node[font=\footnotesize\bfseries, color=white] at (axis cs:DeepSeek-V3, 23) {2};
+
+% Above-bar summaries (succeeded fraction + evasion percentage).
+\node[font=\footnotesize, anchor=south, align=center]
+    at (axis cs:GPT-4o-mini, 44) {43/429 succ.\\\textbf{0.0\% evaded}};
+\node[font=\footnotesize, anchor=south, align=center]
+    at (axis cs:Llama 3.3 70B, 18) {17/432 succ.\\\textbf{29.4\% evaded}};
+\node[font=\footnotesize, anchor=south, align=center]
+    at (axis cs:DeepSeek-V3, 25) {24/432 succ.\\\textbf{8.3\% evaded}};
+
+% GPT-5-mini: no successful attacks — annotate explicitly in place of a bar.
+\node[font=\footnotesize\itshape, color=gray, anchor=south, align=center]
+    at (axis cs:GPT-5-mini, 1) {0\,/\,429\\refused\\before action};
+
+\end{axis}
+\end{tikzpicture}

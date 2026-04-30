@@ -17,7 +17,18 @@
 \usepackage{float}
 \usepackage{tabularx}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,backgrounds}
+\usetikzlibrary{arrows.meta,positioning,backgrounds,patterns}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+
+% Wong colour-blind-safe palette, shared across all data figures.
+\definecolor{wongBlue}{HTML}{0072B2}
+\definecolor{wongSky}{HTML}{56B4E9}
+\definecolor{wongOrange}{HTML}{E69F00}
+\definecolor{wongVerm}{HTML}{D55E00}
+\definecolor{wongGreen}{HTML}{009E73}
+\definecolor{wongPurple}{HTML}{CC79A7}
 
 % Line numbers for review (uncomment for submission)
 % \usepackage{lineno}
@@ -391,7 +402,7 @@ AgentShield raises an alarm on 25.8\%--36.5\% of all attack attempts and, crucia
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_detection.pdf}
+\input{figures/fig_detection.tex}
 \caption{Detection rate per model with Wilson 95\% confidence intervals: AgentShield catches 90.7--100\% of the attacks the agent actually obeys on commercial models, with zero false alarms in 485 normal-use runs on GPT-4o-mini.}
 \label{fig:detection}
 \end{figure}
@@ -434,7 +445,7 @@ AgentShield's detection signal holds across languages. The English--Kurdish gap 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_crosslingual.pdf}
+\input{figures/fig_crosslingual.tex}
 \caption{Cross-lingual detection rate by model and language: the English--Kurdish gap shrinks from 6.4 to 1.9~percentage points as model capability grows.}
 \label{fig:crosslingual}
 \end{figure}
@@ -480,7 +491,7 @@ All 7~evasions came from just two fixable gaps:
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_adaptive.pdf}
+\input{figures/fig_adaptive.tex}
 \caption{Adaptive attack outcomes per model: bar height is the number of successful attacks, split into detected (green) and evaded (orange). Zero evasion on commercial models; the seven open-source evasions trace to two fixable defense gaps.}
 \label{fig:adaptive}
 \end{figure}
@@ -534,7 +545,7 @@ A different family of defenses tries to spot injections by classifying the input
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_classifiers.pdf}
+\input{figures/fig_classifiers.tex}
 \caption{Recall and false positive rate of input-level classifiers across English, Kurdish and Arabic: ProtectAI's false positive rate collapses to 97.5\% on Kurdish and 75.0\% on Arabic; Prompt-Guard misses almost every attack; AgentShield avoids both failure modes.}
 \label{fig:classifiers}
 \end{figure}
