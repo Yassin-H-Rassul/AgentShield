@@ -387,7 +387,14 @@ Five evaluations are reported. The first measures AgentShield's overall detectio
 \subsection{Detection Performance and Layer Analysis}
 \label{sec:detection}
 
-AgentShield raises an alarm on 25.8\%--36.5\% of all attack attempts and, crucially, on 90.7\%--100\% of the attacks that actually succeed on commercial models, with zero false alarms in 485 normal-use runs. Table~\ref{tab:main} summarises the four-model evaluation (128 attacks in each of four AgentDojo environments, 512 runs per model).
+AgentShield raises an alarm on 25.8\%--36.5\% of all attack attempts and, crucially, on 90.7\%--100\% of the attacks that actually succeed on commercial models, with zero false alarms in 485 normal-use runs. Figure~\ref{fig:detection} contrasts the raw and conditional detection rates; Table~\ref{tab:main} provides the per-layer breakdown for the same four-model evaluation (128 attacks in each of four AgentDojo environments, 512 runs per model).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_detection.pdf}
+\caption{Detection rate per model with Wilson 95\% confidence intervals: AgentShield catches 90.7--100\% of the attacks the agent actually obeys on commercial models, with zero false alarms in 485 normal-use runs on GPT-4o-mini.}
+\label{fig:detection}
+\end{figure}
 
 \begin{table}[H]
 \centering
@@ -423,7 +430,14 @@ This is why multiple layers matter: no single layer works well on every model.
 \subsection{Cross-Lingual Detection Gap}
 \label{sec:crosslingual}
 
-AgentShield's detection signal holds across languages. The English--Kurdish gap is at most 6.4~percentage points on GPT-4o-mini and narrows to 1.9pp on DeepSeek-V3 (Table~\ref{tab:by_language}). One likely mechanism is tokenizer fragmentation: Kurdish text splits into 3.87$\times$ more tokens than English on OpenAI's cl100k tokenizer, and 2.33$\times$ on o200k.
+AgentShield's detection signal holds across languages. The English--Kurdish gap is at most 6.4~percentage points on GPT-4o-mini and narrows to 1.9pp on DeepSeek-V3 (Figure~\ref{fig:crosslingual}, Table~\ref{tab:by_language}). One likely mechanism is tokenizer fragmentation: Kurdish text splits into 3.87$\times$ more tokens than English on OpenAI's cl100k tokenizer, and 2.33$\times$ on o200k.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_crosslingual.pdf}
+\caption{Cross-lingual detection rate by model and language: the English--Kurdish gap shrinks from 6.4 to 1.9~percentage points as model capability grows.}
+\label{fig:crosslingual}
+\end{figure}
 
 \begin{table}[H]
 \centering
@@ -448,7 +462,7 @@ EN--KU gap   & 6.4pp$^\dagger$ & 5.2pp & 2.3pp & 1.9pp \\
 \subsection{Adaptive Attack Resilience}
 \label{sec:adaptive}
 
-An attacker aware of AgentShield would try to work around the traps; on commercial models, 1{,}728 systematic adaptive attempts produced zero successful evasions (Table~\ref{tab:adaptive}). The evaluation used 48~attacks designed specifically to evade detection, organised into three tiers of attacker knowledge:
+An attacker aware of AgentShield would try to work around the traps; on commercial models, 1{,}728 systematic adaptive attempts produced zero successful evasions (Figure~\ref{fig:adaptive}, Table~\ref{tab:adaptive}). The evaluation used 48~attacks designed specifically to evade detection, organised into three tiers of attacker knowledge:
 \begin{enumerate}
     \item \textbf{Tier 1}: The attacker knows the agent has some kind of defense but not the details.
     \item \textbf{Tier 2}: The attacker knows the exact names of the fake tools.
@@ -463,6 +477,13 @@ Social engineering was also tested: attacks that tell the agent ``the tool calle
 All 7~evasions came from just two fixable gaps:
 (1)~Llama~3.3 sometimes adds spaces to bank account numbers, which breaks the exact-match check.
 (2)~DeepSeek-V3 put stolen credentials into a password-change field that the parameter validator was not monitoring.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_adaptive.pdf}
+\caption{Adaptive attack outcomes per model: bar height is the number of successful attacks, split into detected (green) and evaded (orange). Zero evasion on commercial models; the seven open-source evasions trace to two fixable defense gaps.}
+\label{fig:adaptive}
+\end{figure}
 
 \begin{table}[H]
 \centering
@@ -509,7 +530,14 @@ DeepSeek-V3   & 7.2\%  & 7.2\%  & $\phantom{+}0$ pp \\
 Spotlighting's behaviour varies widely across models: it reduced ASR on Llama~3.3, had no effect on DeepSeek-V3, and \emph{increased} ASR on GPT-4o-mini by 3.3~percentage points. Three of four models saw no benefit or a regression, so the delimiting variant cannot be relied upon as a single-layer defense in the tool-calling setting. Because spotlighting is a prevention defense (it does not produce detection signals), it is complementary to AgentShield rather than redundant: in a combined evaluation on GPT-4o-mini (banking and messaging suites, Set~A, 160~runs), spotlighting~+~AgentShield reached 71.9\% detection, against 0\% for spotlighting alone.
 
 \paragraph{Input-level injection classifiers.}
-A different family of defenses tries to spot injections by classifying the input text. The two representatives tested here are ProtectAI DeBERTa v2~\citep{protectai2024deberta} and Meta Prompt-Guard-2~\citep{meta2024promptguard}. Table~\ref{tab:classifiers} shows their behaviour on the cross-lingual prompt set. Both fail outside English. ProtectAI flags nearly every Kurdish or Arabic input as malicious, while Prompt-Guard misses almost every attack in any language. AgentShield avoids both failure modes because it never looks at the text in the first place.
+A different family of defenses tries to spot injections by classifying the input text. The two representatives tested here are ProtectAI DeBERTa v2~\citep{protectai2024deberta} and Meta Prompt-Guard-2~\citep{meta2024promptguard}. Figure~\ref{fig:classifiers} and Table~\ref{tab:classifiers} show their behaviour on the cross-lingual prompt set. Both fail outside English. ProtectAI flags nearly every Kurdish or Arabic input as malicious, while Prompt-Guard misses almost every attack in any language. AgentShield avoids both failure modes because it never looks at the text in the first place.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/fig_classifiers.pdf}
+\caption{Recall and false positive rate of input-level classifiers across English, Kurdish and Arabic: ProtectAI's false positive rate collapses to 97.5\% on Kurdish and 75.0\% on Arabic; Prompt-Guard misses almost every attack; AgentShield avoids both failure modes.}
+\label{fig:classifiers}
+\end{figure}
 
 \begin{table}[H]
 \centering
