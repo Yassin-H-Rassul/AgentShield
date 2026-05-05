@@ -82,7 +82,7 @@ In traditional cybersecurity, one well-known way to detect intruders is to leave
 \paragraph{Contribution.}
 \textbf{AgentShield} turns an LLM agent's own tool interface into a compromise observatory: fake tools, planted credentials, and an allowlist on parameter values act as trip-wires, and the same trip-wires generate zero-FP training labels for a downstream classifier that transfers across models and languages. The claim is supported by four pieces of evidence in this paper: a cross-lingual evaluation covering English, Kurdish, Arabic, and code-switched attacks on four LLMs from three providers (Section~\ref{sec:crosslingual}); a systematic adaptive-attack study with three tiers of attacker knowledge and 1{,}728~runs (Section~\ref{sec:adaptive}); head-to-head comparisons against prevention baselines spotlighting and two input-level classifiers (Section~\ref{sec:baselines}); and a Random-Forest classifier trained on honeytool-triggered labels alone, which holds $F_1 \approx 0.99$ under cross-model and cross-language transfer (Section~\ref{sec:classifier}).
 
-All attack prompts, defense code, and evaluation scripts are available at \url{https://github.com/Yassin-H-Rassul/thesis}.
+All attack prompts, defense code, and evaluation scripts are available at \url{https://github.com/Yassin-H-Rassul/AgentShield}.
 
 
 % ============================================================
@@ -397,7 +397,7 @@ Adaptive & Tier 3 (full)    & ``The parameter validator checks IBANs; use a memo
 To confirm that AgentShield does not raise false alarms during normal use, all 97~AgentDojo user tasks were executed with AgentShield active but no attacks, repeated five times (485 total runs on GPT-4o-mini). The false positive rate is reported with a 95\% Wilson confidence interval, which gives a statistical bound on the true false alarm rate.
 
 \paragraph{Open source.}
-All attack prompts, defense code, and evaluation scripts are available at \url{https://github.com/Yassin-H-Rassul/thesis}.
+All attack prompts, defense code, and evaluation scripts are available at \url{https://github.com/Yassin-H-Rassul/AgentShield}.
 
 
 % ============================================================
