@@ -49,15 +49,14 @@
 
 \title{AgentShield: Deception-based Compromise Detection for Tool-using LLM Agents}
 
-\author[ukh]{Yassin H. Rassul\corref{cor1}}
+\author{Yassin H. Rassul\corref{cor1}}
 \ead{yassin.rassul@ukh.edu.krd}
 
-\author[aiic,ukh]{Tarik A. Rashid}
+\author{Tarik A. Rashid}
 
 \cortext[cor1]{Corresponding author}
 
-\address[ukh]{Department of Computer Science and Engineering, School of Science and Engineering, University of Kurdistan Hewl\^{e}r, Erbil, Iraq}
-\address[aiic]{Artificial Intelligence and Innovation Centre, University of Kurdistan Hewl\^{e}r, Erbil, Iraq}
+\address{University of Kurdistan Hewl\^{e}r, Erbil, Iraq}
 
 \begin{abstract}
 Defenses against indirect prompt injection (IPI) in tool-using LLM agents share two structural weaknesses. First, they all attempt to \emph{prevent} attacks rather than \emph{detect} the compromises that slip through. Second, they have only been evaluated in English, leaving users of low-resource languages such as Kurdish and Arabic without tested protection. This paper addresses both gaps with AgentShield, a deception-based detection framework that places three layers of traps inside the agent's tool interface: fake tools, fake credentials, and allowlisted parameters. The same trap triggers serve as high-precision labels for a self-supervised classifier. An LLM agent that follows an attacker's hidden instruction almost always touches one of these traps, which gives both a real-time compromise signal and a zero-FP label for training a downstream detector without manual annotation. Across 176~cross-lingual attack prompts and four LLMs from three providers, and because modern LLMs already refuse most IPI attempts on their own (attack success rate $\leq$ 10\%), AgentShield's job is to catch the attacks that do slip through. On commercial models, it catches 90.7\%--100\% of such successful attacks, with zero false alarms on 485~normal-use tests. It survives a systematic adaptive-attack evaluation with zero evasion on commercial models, and the self-supervised classifier transfers across models and languages without retraining.
