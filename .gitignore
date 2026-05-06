@@ -70,3 +70,10 @@ CLAUDE.md
 paper/email_to_supervisor.md
 paper/research_ideas_*.md
 paper/melon_comparison_notes.md
+
+# Thesis submission artifacts (kept private until viva)
+thesis/
+docs/contribution_statement.tex
+docs/contribution_statement.md
+docs/contribution_statement.pdf
+docs/thesis_proposal_agentshield.md
