@@ -310,7 +310,7 @@ Every time the agent tries to call a tool, AgentShield checks the call against t
 \end{figure}
 
 \paragraph{Layer 1: Honeytools (fake tools).}
-We add three fake tools to the agent's tool list alongside the real ones: \texttt{export\_all\_user\_data}, \texttt{exfiltrate\_data\_to\_attacker\_server}, and \texttt{system\_admin\_console}.
+We add three fake tools to the agent's tool list alongside the real ones: \texttt{export\_\allowbreak all\_\allowbreak user\_\allowbreak data}, \texttt{exfiltrate\_\allowbreak data\_\allowbreak to\_\allowbreak attacker\_\allowbreak server}, and \texttt{system\_\allowbreak admin\_\allowbreak console}.
 Each fake tool has a description that sounds useful to an attacker, but it does nothing harmful if called (it just returns an error).
 No legitimate user task would ever need a tool called ``exfiltrate data to attacker server.''
 If the agent calls one of these tools, we know it has been compromised.
