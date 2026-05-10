@@ -104,14 +104,17 @@ AgentShield is evaluated on [AgentDojo](https://github.com/ethz-spylab/agentdojo
 If you use AgentShield in your research, please cite:
 
 ```bibtex
-@mastersthesis{agentshield2026,
-  author = {TODO},
-  title  = {AgentShield: Multi-Layer Deception-Based Detection of Indirect Prompt Injection in Cross-Lingual Tool-Using AI Agents},
-  school = {University of Kurdistan Hewler},
-  year   = {2026}
+@article{rassul2026agentshield,
+  author  = {Rassul, Yassin H. and Rashid, Tarik A.},
+  title   = {{AgentShield}: Deception-based Compromise Detection for Tool-using {LLM} Agents},
+  journal = {arXiv preprint},
+  year    = {2026},
+  url     = {https://github.com/Yassin-H-Rassul/AgentShield}
 }
 ```
 
+(Update the entry with the assigned `arXiv:XXXX.XXXXX` identifier once the preprint is announced.)
+
 ## License
 
-This project is released for academic and research purposes.
+Released under the [MIT License](LICENSE). Copyright (c) 2026 Yassin H. Rassul, Tarik A. Rashid.
