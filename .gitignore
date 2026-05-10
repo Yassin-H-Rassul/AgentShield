@@ -104,3 +104,10 @@ docs/meeting_presentation.out
 docs/guidelines/Thesis Guidelines V5.7.docx
 docs/threat_model_page-049.png
 Thesis Guidelines V5.7.docx
+
+# Humanization workflow (working files, not for public release)
+humanize/
+
+# arXiv submission helpers (build artifacts and copy-paste drafts)
+paper/arxiv_abstract.md
+paper/arxiv_submission.zip
