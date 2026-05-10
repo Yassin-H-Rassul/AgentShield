@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use AgentShield in your research, please cite the paper below."
+type: software
+title: "AgentShield: Deception-based Compromise Detection for Tool-using LLM Agents"
+authors:
+  - family-names: Rassul
+    given-names: Yassin H.
+    affiliation: "University of Kurdistan Hewlêr"
+    email: yassin.rassul@ukh.edu.krd
+  - family-names: Rashid
+    given-names: Tarik A.
+    affiliation: "University of Kurdistan Hewlêr"
+repository-code: "https://github.com/Yassin-H-Rassul/AgentShield"
+license: MIT
+year: 2026
+preferred-citation:
+  type: article
+  title: "AgentShield: Deception-based Compromise Detection for Tool-using LLM Agents"
+  authors:
+    - family-names: Rassul
+      given-names: Yassin H.
+      affiliation: "University of Kurdistan Hewlêr"
+    - family-names: Rashid
+      given-names: Tarik A.
+      affiliation: "University of Kurdistan Hewlêr"
+  year: 2026

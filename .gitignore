@@ -99,3 +99,8 @@ docs/meeting_presentation.aux
 docs/meeting_presentation.log
 docs/meeting_presentation.toc
 docs/meeting_presentation.out
+
+# Third-party UKH thesis Word doc (other people's metadata) and stranded image
+docs/guidelines/Thesis Guidelines V5.7.docx
+docs/threat_model_page-049.png
+Thesis Guidelines V5.7.docx
